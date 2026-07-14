@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>📡 Monitor · Speedtest ISP 1Gbps</title>
+    <title>📡 Monitor · Speedtest ISP</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -41,6 +41,38 @@
         .link-info .link-status.online { background: rgba(34,197,94,0.2); color: #22c55e; border: 1px solid #22c55e; }
         .link-info .link-status.degraded { background: rgba(220,38,38,0.2); color: #dc2626; border: 1px solid #dc2626; }
         .link-info .link-status.warning { background: rgba(245,158,11,0.2); color: #f59e0b; border: 1px solid #f59e0b; }
+
+        /* SELECTOR DE VELOCIDADE */
+        .speed-selector {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            background: rgba(255,255,255,0.05);
+            padding: 4px;
+            border-radius: 40px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .speed-selector .opt {
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            color: #94a3b8;
+            border: none;
+            background: transparent;
+        }
+        .speed-selector .opt:hover { color: #e2e8f0; }
+        .speed-selector .opt.active {
+            background: linear-gradient(135deg, #00d2ff, #3a7bd5);
+            color: white;
+            box-shadow: 0 0 20px rgba(0,210,255,0.2);
+        }
+        .speed-selector .opt .badge {
+            font-size: 0.6rem;
+            opacity: 0.6;
+        }
 
         /* SPEEDOMETER + METRICS */
         .speedometer-row {
@@ -216,7 +248,7 @@
         .metric-item .dot.warning { background: #f59e0b; }
         .metric-item .dot.bad { background: #dc2626; }
 
-        /* HOSTS GRID (compacto) */
+        /* HOSTS GRID */
         .hosts-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
@@ -450,7 +482,7 @@
         <div>
             <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
                 <i class="fas fa-tachometer-alt" style="color:#00d2ff; font-size:2rem;"></i>
-                <span class="link-speed">1 Gbps</span>
+                <span class="link-speed" id="linkSpeedDisplay">1 Gbps</span>
                 <span style="color:#94a3b8; font-size:0.9rem;">Link Dedicado</span>
                 <span id="linkStatusBadge" class="link-status online">
                     <i class="fas fa-check-circle"></i> Online
@@ -462,14 +494,23 @@
                 <span class="link-detail"><i class="fas fa-exchange-alt"></i> Velocidade: <span id="currentSpeed">--</span> Mbps</span>
             </div>
         </div>
-        <div style="text-align:right;">
-            <div style="font-size:0.8rem; color:#94a3b8;">SLA Garantido</div>
-            <div style="font-size:0.9rem; color:#22c55e;"><i class="fas fa-check"></i> 99.9%</div>
-            <div style="font-size:0.7rem; color:#94a3b8;">Último teste: <span id="lastTest">--</span></div>
+        <div style="display:flex; flex-direction:column; align-items:flex-end; gap:8px;">
+            <div style="display:flex; gap:8px; align-items:center;">
+                <span style="font-size:0.7rem; color:#94a3b8;">Link:</span>
+                <div class="speed-selector" id="speedSelector">
+                    <button class="opt" data-speed="300">300 <span class="badge">Mbps</span></button>
+                    <button class="opt" data-speed="600">600 <span class="badge">Mbps</span></button>
+                    <button class="opt active" data-speed="1000">1 <span class="badge">Gbps</span></button>
+                </div>
+            </div>
+            <div style="font-size:0.7rem; color:#94a3b8; text-align:right;">
+                SLA Garantido · <span id="slaDisplay">99.9%</span>
+                <span style="margin-left:12px;">Último teste: <span id="lastTest">--</span></span>
+            </div>
         </div>
     </div>
 
-    <!-- SPEEDOMETER + MÉTRICAS SIDE -->
+    <!-- SPEEDOMETER + MÉTRICAS -->
     <div class="speedometer-row">
         <!-- Velocímetro -->
         <div class="speedometer-card">
@@ -511,7 +552,7 @@
             </button>
         </div>
 
-        <!-- Métricas lado a lado -->
+        <!-- Métricas lado -->
         <div class="metrics-side">
             <div class="title"><i class="fas fa-chart-bar"></i> Métricas do Link</div>
             <div class="metric-grid">
@@ -535,7 +576,7 @@
         </div>
     </div>
 
-    <!-- HOSTS GRID (compacto) -->
+    <!-- HOSTS GRID -->
     <div class="hosts-grid" id="hostsGrid">
         <!-- Gerado via JS -->
     </div>
@@ -681,19 +722,46 @@
 
 <script>
 // ================================================================
-// CONFIGURAÇÃO
+// CONFIGURAÇÃO - VELOCIDADES DISPONÍVEIS
 // ================================================================
-const LINK_CONFIG = {
-    name: 'Link Dedicado 1Gbps',
-    speed: 1000,
-    sla: 99.9,
-    thresholds: {
-        latency: { warning: 30, critical: 60 },
-        jitter: { warning: 5, critical: 15 },
-        packetLoss: { warning: 0.5, critical: 2 },
-        speed: { warning: 800, critical: 500 }
+const SPEED_OPTIONS = {
+    300: {
+        label: '300 Mbps',
+        speed: 300,
+        sla: 99.5,
+        thresholds: {
+            latency: { warning: 40, critical: 80 },
+            jitter: { warning: 8, critical: 20 },
+            packetLoss: { warning: 0.8, critical: 3 },
+            speed: { warning: 240, critical: 150 }
+        }
+    },
+    600: {
+        label: '600 Mbps',
+        speed: 600,
+        sla: 99.7,
+        thresholds: {
+            latency: { warning: 35, critical: 70 },
+            jitter: { warning: 6, critical: 18 },
+            packetLoss: { warning: 0.6, critical: 2.5 },
+            speed: { warning: 480, critical: 300 }
+        }
+    },
+    1000: {
+        label: '1 Gbps',
+        speed: 1000,
+        sla: 99.9,
+        thresholds: {
+            latency: { warning: 30, critical: 60 },
+            jitter: { warning: 5, critical: 15 },
+            packetLoss: { warning: 0.5, critical: 2 },
+            speed: { warning: 800, critical: 500 }
+        }
     }
 };
+
+let currentSpeed = 1000;
+let currentConfig = SPEED_OPTIONS[1000];
 
 // ================================================================
 // HOSTS ISP (CORS OK)
@@ -738,6 +806,57 @@ function showToast(message, type = 'info', duration = 5000) {
         toast.classList.add('hide');
         setTimeout(() => toast.remove(), 300);
     }, duration);
+}
+
+// ================================================================
+// SELETOR DE VELOCIDADE
+// ================================================================
+document.querySelectorAll('.speed-selector .opt').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const speed = parseInt(this.dataset.speed);
+        if (speed === currentSpeed) return;
+        
+        // Atualiza UI do seletor
+        document.querySelectorAll('.speed-selector .opt').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        
+        // Atualiza configuração
+        currentSpeed = speed;
+        currentConfig = SPEED_OPTIONS[speed];
+        
+        // Atualiza display
+        document.getElementById('linkSpeedDisplay').textContent = currentConfig.label;
+        document.getElementById('slaDisplay').textContent = currentConfig.sla + '%';
+        
+        // Atualiza thresholds no gráfico
+        updateChartMax();
+        
+        // Reseta métricas
+        resetMetrics();
+        
+        showToast(`✅ Link alterado para ${currentConfig.label}`, 'success');
+        
+        // Roda teste automático
+        setTimeout(runSpeedtest, 1000);
+    });
+});
+
+function updateChartMax() {
+    if (chartInstance) {
+        chartInstance.options.scales.y1.max = currentConfig.speed * 1.1;
+        chartInstance.update();
+    }
+}
+
+function resetMetrics() {
+    document.getElementById('speedValue').innerHTML = '-- <span class="unit">Mbps</span>';
+    document.getElementById('downloadValue').textContent = '--';
+    document.getElementById('uploadValue').textContent = '--';
+    document.getElementById('currentSpeed').textContent = '--';
+    document.getElementById('avgResponse').textContent = '--';
+    document.getElementById('activeHosts').textContent = '0';
+    document.getElementById('speedStatus').textContent = '--';
+    document.getElementById('speedStatus').className = 'speed-status excellent';
 }
 
 // ================================================================
@@ -819,7 +938,7 @@ async function runSpeedtest() {
         const estimatedSpeed = calculateSpeedFromHosts(results);
 
         state.latency = avgResponse || 15;
-        state.speed = Math.min(estimatedSpeed || 100, LINK_CONFIG.speed);
+        state.speed = Math.min(estimatedSpeed || 50, currentConfig.speed);
         state.jitter = calculateJitter(results);
         state.packetLoss = calculatePacketLoss(results);
         state.bestHost = results.filter(r => r.success).sort((a, b) => a.time - b.time)[0]?.name || 'N/A';
@@ -834,7 +953,7 @@ async function runSpeedtest() {
         if (uploadValue) uploadValue.textContent = Math.round(state.upload);
 
         // Atualiza status do velocímetro
-        const speedPercent = (state.speed / LINK_CONFIG.speed) * 100;
+        const speedPercent = (state.speed / currentConfig.speed) * 100;
         const degradationScore = calculateDegradationScore();
         let statusText = 'stable';
         let statusLabel = 'Excelente';
@@ -892,6 +1011,7 @@ async function runSpeedtest() {
             speed: state.speed,
             download: state.download,
             upload: state.upload,
+            speedConfig: currentConfig.speed,
             hosts: successfulHosts,
             bestHost: state.bestHost
         });
@@ -979,7 +1099,7 @@ async function testHost(host) {
 // ================================================================
 function calculateSpeedFromHosts(results) {
     const successful = results.filter(r => r.success && r.time > 0 && r.size > 0);
-    if (successful.length === 0) return 100;
+    if (successful.length === 0) return 50;
 
     const speeds = successful.map(r => {
         const sizeMB = r.size;
@@ -990,7 +1110,7 @@ function calculateSpeedFromHosts(results) {
         return 0;
     }).filter(s => s > 0 && s < 10000);
 
-    if (speeds.length === 0) return 100;
+    if (speeds.length === 0) return 50;
 
     const sorted = speeds.sort((a, b) => a - b);
     const trimmed = sorted.length > 2 ? sorted.slice(1, -1) : sorted;
@@ -1013,7 +1133,7 @@ function calculatePacketLoss(results) {
 
 function calculateDegradationScore() {
     let score = 0;
-    const t = LINK_CONFIG.thresholds;
+    const t = currentConfig.thresholds;
 
     if (state.latency > t.latency.critical) score += 35;
     else if (state.latency > t.latency.warning) score += 20;
@@ -1024,7 +1144,7 @@ function calculateDegradationScore() {
     if (state.jitter > t.jitter.critical) score += 20;
     else if (state.jitter > t.jitter.warning) score += 10;
 
-    const speedPercent = (state.speed / LINK_CONFIG.speed) * 100;
+    const speedPercent = (state.speed / currentConfig.speed) * 100;
     if (speedPercent < 50) score += 30;
     else if (speedPercent < 80) score += 15;
 
@@ -1097,35 +1217,37 @@ function updateStatusUI() {
     const summary = document.getElementById('statusSummary');
     if (summary) {
         const texts = {
-            stable: '✅ Link 1Gbps estável. Todos os hosts respondendo bem.',
-            warning: '⚠️ Atenção: alguns hosts apresentam lentidão.',
-            degraded: '🔴 Degradação detectada! Verifique os hosts.'
+            stable: `✅ Link ${currentConfig.label} estável. Todos os hosts respondendo bem.`,
+            warning: `⚠️ Atenção: alguns hosts apresentam lentidão no link ${currentConfig.label}.`,
+            degraded: `🔴 Degradação detectada no link ${currentConfig.label}! Verifique os hosts.`
         };
         summary.textContent = texts[state.status] || texts.stable;
     }
 }
 
 function updateMetricsUI() {
+    const t = currentConfig.thresholds;
+    
     // Métricas do lado
     const latEl = document.getElementById('mLatency');
     const latDot = document.getElementById('latencyDot');
     if (latEl) latEl.innerHTML = state.latency + ' <span class="u">ms</span>';
     if (latDot) {
-        latDot.className = 'dot ' + (state.latency <= 30 ? 'good' : state.latency <= 60 ? 'warning' : 'bad');
+        latDot.className = 'dot ' + (state.latency <= t.latency.warning ? 'good' : state.latency <= t.latency.critical ? 'warning' : 'bad');
     }
 
     const jitEl = document.getElementById('mJitter');
     const jitDot = document.getElementById('jitterDot');
     if (jitEl) jitEl.innerHTML = state.jitter + ' <span class="u">ms</span>';
     if (jitDot) {
-        jitDot.className = 'dot ' + (state.jitter <= 5 ? 'good' : state.jitter <= 15 ? 'warning' : 'bad');
+        jitDot.className = 'dot ' + (state.jitter <= t.jitter.warning ? 'good' : state.jitter <= t.jitter.critical ? 'warning' : 'bad');
     }
 
     const lossEl = document.getElementById('mLoss');
     const lossDot = document.getElementById('lossDot');
     if (lossEl) lossEl.innerHTML = state.packetLoss.toFixed(1) + ' <span class="u">%</span>';
     if (lossDot) {
-        lossDot.className = 'dot ' + (state.packetLoss <= 0.5 ? 'good' : state.packetLoss <= 2 ? 'warning' : 'bad');
+        lossDot.className = 'dot ' + (state.packetLoss <= t.packetLoss.warning ? 'good' : state.packetLoss <= t.packetLoss.critical ? 'warning' : 'bad');
     }
 
     const uptime = calculateUptime();
@@ -1141,10 +1263,14 @@ function updateMetricsUI() {
     if (!list) return;
     
     const items = [
-        { key: 'latency', label: 'Latência Média (ms)', value: state.latency, status: state.latency <= 30 ? 'stable' : state.latency <= 60 ? 'warning' : 'degraded' },
-        { key: 'jitter', label: 'Jitter (ms)', value: state.jitter, status: state.jitter <= 5 ? 'stable' : state.jitter <= 15 ? 'warning' : 'degraded' },
-        { key: 'packetLoss', label: 'Perda de Pacotes (%)', value: state.packetLoss.toFixed(1), status: state.packetLoss <= 0.5 ? 'stable' : state.packetLoss <= 2 ? 'warning' : 'degraded' },
-        { key: 'speed', label: 'Velocidade (Mbps)', value: state.speed, status: state.speed > 800 ? 'stable' : state.speed > 500 ? 'warning' : 'degraded' }
+        { key: 'latency', label: `Latência (ms) - ${currentConfig.label}`, value: state.latency, 
+          status: state.latency <= t.latency.warning ? 'stable' : state.latency <= t.latency.critical ? 'warning' : 'degraded' },
+        { key: 'jitter', label: 'Jitter (ms)', value: state.jitter, 
+          status: state.jitter <= t.jitter.warning ? 'stable' : state.jitter <= t.jitter.critical ? 'warning' : 'degraded' },
+        { key: 'packetLoss', label: 'Perda de Pacotes (%)', value: state.packetLoss.toFixed(1), 
+          status: state.packetLoss <= t.packetLoss.warning ? 'stable' : state.packetLoss <= t.packetLoss.critical ? 'warning' : 'degraded' },
+        { key: 'speed', label: `Velocidade (Mbps) - ${currentConfig.label}`, value: state.speed, 
+          status: state.speed > t.speed.warning ? 'stable' : state.speed > t.speed.critical ? 'warning' : 'degraded' }
     ];
 
     list.innerHTML = items.map(item => `
@@ -1159,36 +1285,35 @@ function updateAlert() {
     const box = document.getElementById('alertBox');
     const msg = document.getElementById('alertMessage');
     if (!box || !msg) return;
+    const t = currentConfig.thresholds;
     
     if (state.status === 'degraded') {
         box.className = 'alert-box active';
         box.style.borderLeftColor = '#dc2626';
         box.style.background = '#fef2f2';
         let reasons = [];
-        const t = LINK_CONFIG.thresholds;
         if (state.latency > t.latency.critical) reasons.push(`Latência alta (${state.latency}ms)`);
         if (state.packetLoss > t.packetLoss.critical) reasons.push(`Perda (${state.packetLoss.toFixed(1)}%)`);
         if (state.jitter > t.jitter.critical) reasons.push(`Jitter (${state.jitter}ms)`);
         if (state.speed < t.speed.critical) reasons.push(`Velocidade (${state.speed}Mbps)`);
-        msg.textContent = `🔴 Degradação: ${reasons.join(', ')}`;
+        msg.textContent = `🔴 Degradação no link ${currentConfig.label}: ${reasons.join(', ')}`;
         msg.style.color = '#991b1b';
     } else if (state.status === 'warning') {
         box.className = 'alert-box active';
         box.style.borderLeftColor = '#f59e0b';
         box.style.background = '#fffbeb';
         let reasons = [];
-        const t = LINK_CONFIG.thresholds;
         if (state.latency > t.latency.warning) reasons.push(`Latência (${state.latency}ms)`);
         if (state.packetLoss > t.packetLoss.warning) reasons.push(`Perda (${state.packetLoss.toFixed(1)}%)`);
         if (state.jitter > t.jitter.warning) reasons.push(`Jitter (${state.jitter}ms)`);
         if (state.speed < t.speed.warning) reasons.push(`Velocidade (${state.speed}Mbps)`);
-        msg.textContent = `⚠️ Atenção: ${reasons.join(', ')}`;
+        msg.textContent = `⚠️ Atenção no link ${currentConfig.label}: ${reasons.join(', ')}`;
         msg.style.color = '#92400e';
     } else {
         box.className = 'alert-box';
         box.style.borderLeftColor = '#22c55e';
         box.style.background = '#ecfdf5';
-        msg.textContent = '✅ Link 1Gbps estável. Nenhuma degradação detectada.';
+        msg.textContent = `✅ Link ${currentConfig.label} estável. Nenhuma degradação detectada.`;
         msg.style.color = '#065f46';
     }
 }
@@ -1225,7 +1350,7 @@ function updateQualityIndicator() {
 
 function calculateQualityScore() {
     let score = 100;
-    const t = LINK_CONFIG.thresholds;
+    const t = currentConfig.thresholds;
     
     if (state.latency > t.latency.critical) score -= 25;
     else if (state.latency > t.latency.warning) score -= 15;
@@ -1236,7 +1361,7 @@ function calculateQualityScore() {
     if (state.jitter > t.jitter.critical) score -= 20;
     else if (state.jitter > t.jitter.warning) score -= 10;
     
-    const speedPercent = (state.speed / LINK_CONFIG.speed) * 100;
+    const speedPercent = (state.speed / currentConfig.speed) * 100;
     if (speedPercent < 50) score -= 25;
     else if (speedPercent < 80) score -= 15;
     
@@ -1273,7 +1398,7 @@ function initChart() {
             plugins: { legend: { display: false }, tooltip: { mode: 'index' } },
             scales: {
                 y: { beginAtZero: true, grid: { color: '#e9edf2' }, title: { display: true, text: 'ms / %' }, position: 'left' },
-                y1: { beginAtZero: true, grid: { drawOnChartArea: false }, title: { display: true, text: 'Mbps' }, position: 'right', max: LINK_CONFIG.speed * 1.1 }
+                y1: { beginAtZero: true, grid: { drawOnChartArea: false }, title: { display: true, text: 'Mbps' }, position: 'right', max: currentConfig.speed * 1.1 }
             }
         }
     });
@@ -1301,7 +1426,8 @@ function updateChart() {
 function exportReport() {
     const data = {
         timestamp: new Date().toISOString(),
-        link: '1Gbps Dedicado',
+        link: currentConfig.label,
+        speedConfig: currentConfig.speed,
         metrics: { latency: state.latency, jitter: state.jitter, packetLoss: state.packetLoss, speed: state.speed, download: state.download, upload: state.upload },
         hosts: state.hostResults,
         bestHost: state.bestHost,
@@ -1312,7 +1438,7 @@ function exportReport() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `speedtest-${new Date().toISOString().slice(0,10)}.json`;
+    a.download = `speedtest-${currentConfig.speed}-${new Date().toISOString().slice(0,10)}.json`;
     a.click();
     URL.revokeObjectURL(url);
     showToast('📊 Relatório exportado!', 'success');
@@ -1337,12 +1463,14 @@ function showHistory() {
         <th style="padding:8px;text-align:right;">Perda</th>
         <th style="padding:8px;text-align:right;">Velocidade</th>
         <th style="padding:8px;text-align:right;">Down/Up</th>
+        <th style="padding:8px;text-align:left;">Link</th>
         <th style="padding:8px;text-align:left;">Host</th>
     </tr></thead><tbody>`;
     const recent = state.historyLog.slice(-20).reverse();
     for (const e of recent) {
         const color = e.status === 'degraded' ? '#dc2626' : e.status === 'warning' ? '#f59e0b' : '#22c55e';
         const icon = e.status === 'degraded' ? '🔴' : e.status === 'warning' ? '🟡' : '🟢';
+        const linkLabel = e.speedConfig ? (e.speedConfig >= 1000 ? '1G' : e.speedConfig + 'M') : '--';
         html += `<tr style="border-bottom:1px solid #eef2f6;">
             <td style="padding:8px;">${new Date(e.time).toLocaleTimeString()}</td>
             <td style="padding:8px;text-align:center;color:${color};">${icon} ${e.status}</td>
@@ -1350,6 +1478,7 @@ function showHistory() {
             <td style="padding:8px;text-align:right;">${e.packetLoss.toFixed(1)}%</td>
             <td style="padding:8px;text-align:right;">${e.speed}Mbps</td>
             <td style="padding:8px;text-align:right;font-size:0.75rem;">${e.download || '--'}/${e.upload || '--'}</td>
+            <td style="padding:8px;text-align:left;font-size:0.75rem;">${linkLabel}</td>
             <td style="padding:8px;text-align:left;font-size:0.75rem;">${e.bestHost || 'N/A'}</td>
         </tr>`;
     }
@@ -1412,7 +1541,7 @@ function logEmail(msg, type = 'info') {
     emailFeedback.innerHTML = `<span class="status-email ${type}"><i class="fas fa-${icons[type] || 'info-circle'}"></i> ${msg}</span>`;
 }
 
-// Event listeners com verificação
+// Event listeners
 const testBtn = document.getElementById('testEmailBtn');
 if (testBtn) {
     testBtn.addEventListener('click', async function() {
@@ -1489,7 +1618,8 @@ if (sendBtn) {
                 pass,
                 recipients,
                 data: {
-                    link: '1Gbps Dedicado',
+                    link: currentConfig.label,
+                    speedConfig: currentConfig.speed,
                     metrics: { latency: state.latency, jitter: state.jitter, packetLoss: state.packetLoss, speed: state.speed, download: state.download, upload: state.upload },
                     hosts: state.hostResults,
                     bestHost: state.bestHost,
@@ -1500,7 +1630,7 @@ if (sendBtn) {
 
             if (result.success) {
                 const texts = { stable: '✅ Estável', warning: '⚠️ Atenção', degraded: '🔴 Degradado' };
-                logEmail(`✅ ${texts[state.status]} - Enviado para ${recipients}`, 'success');
+                logEmail(`✅ ${texts[state.status]} - ${currentConfig.label} - Enviado para ${recipients}`, 'success');
                 if (emailStatus) {
                     emailStatus.innerHTML = '<i class="fas fa-check-circle"></i> Enviado';
                     emailStatus.className = 'status-email success';
@@ -1550,7 +1680,8 @@ function saveConfig() {
         smtpUser: document.getElementById('smtpUser')?.value || '',
         smtpPass: document.getElementById('smtpPass')?.value || '',
         recipients: document.getElementById('emailRecipients')?.value || '',
-        autoAlert: SERVER_CONFIG.autoAlert
+        autoAlert: SERVER_CONFIG.autoAlert,
+        speedConfig: currentSpeed
     };
     localStorage.setItem('monitorConfig', JSON.stringify(config));
 }
@@ -1578,6 +1709,22 @@ function loadConfig() {
                     '<i class="fas fa-robot"></i> Auto: OFF';
                 toggleBtn.style.background = SERVER_CONFIG.autoAlert ? '#22c55e' : '#64748b';
             }
+            
+            // Carrega velocidade salva
+            if (config.speedConfig) {
+                const speed = config.speedConfig;
+                document.querySelectorAll('.speed-selector .opt').forEach(b => {
+                    b.classList.remove('active');
+                    if (parseInt(b.dataset.speed) === speed) {
+                        b.classList.add('active');
+                    }
+                });
+                currentSpeed = speed;
+                currentConfig = SPEED_OPTIONS[speed];
+                document.getElementById('linkSpeedDisplay').textContent = currentConfig.label;
+                document.getElementById('slaDisplay').textContent = currentConfig.sla + '%';
+                updateChartMax();
+            }
         }
     } catch (e) {
         console.warn('Erro ao carregar config:', e);
@@ -1602,10 +1749,10 @@ async function startMonitoring() {
 
 startMonitoring();
 
-console.log('📡 Speedtest ISP Integrado - Link 1Gbps');
+console.log('📡 Speedtest ISP - Link ' + currentConfig.label);
 console.log('👨‍💻 Desenvolvido por Israelson Diego Rodrigues Sevalho');
 console.log('🚀 Dev de Redes e Softwares');
-console.log('⚡ Link: 1 Gbps Dedicado');
+console.log('⚡ Link selecionado: ' + currentConfig.label);
 console.log('🌐 Hosts: ' + TEST_HOSTS.map(h => h.name).join(', '));
 </script>
 </body>
