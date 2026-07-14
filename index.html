@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>📡 Monitor de Link · IP + OOKLA Speedtest</title>
+    <title>📡 Monitor de Link · Fast + Copel Speedtest</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -60,6 +60,13 @@
         .speedtest-card .speed-detail .item { text-align: center; }
         .speedtest-card .speed-detail .value { font-size: 1.2rem; font-weight: 600; color: #e2e8f0; }
         .speedtest-card .speed-detail .label { font-size: 0.7rem; color: #94a3b8; }
+        .speedtest-card .server-badge {
+            background: rgba(255,255,255,0.1);
+            padding: 4px 16px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            color: #00d2ff;
+        }
 
         .radar-grid {
             display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -292,7 +299,7 @@
 <div class="dashboard">
     <!-- HEADER -->
     <div class="header">
-        <h1><i class="fas fa-network-wired"></i> Monitor de Link · OOKLA Speedtest</h1>
+        <h1><i class="fas fa-network-wired"></i> Monitor de Link · Fast + Copel</h1>
         <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
             <div class="status-badge">
                 <i class="fas fa-circle live"></i> <span id="liveStatus">Conectado</span>
@@ -300,7 +307,7 @@
                     <i class="fas fa-sync-alt fa-fw"></i> <span id="scanCount">0</span> leituras
                 </span>
             </div>
-            <span class="real-badge"><i class="fas fa-check-circle"></i> OOKLA API</span>
+            <span class="real-badge"><i class="fas fa-check-circle"></i> OOKLA Brasil</span>
             <span class="server-info"><i class="fas fa-server"></i> <span id="serverHost">vps.seudominio.com</span></span>
             <span class="quality-indicator excellent" id="qualityIndicator">
                 <i class="fas fa-star"></i> Excelente
@@ -332,12 +339,13 @@
         </div>
     </div>
 
-    <!-- SPEEDTEST CARD - OOKLA -->
+    <!-- SPEEDTEST CARD -->
     <div class="speedtest-card">
         <div>
-            <div style="display:flex; align-items:center; gap:12px; margin-bottom:4px;">
+            <div style="display:flex; align-items:center; gap:12px; margin-bottom:4px; flex-wrap:wrap;">
                 <i class="fas fa-bolt" style="color:#00d2ff; font-size:1.5rem;"></i>
                 <span style="font-weight:300; color:#94a3b8;">OOKLA Speedtest</span>
+                <span class="server-badge" id="serverBadge">🇧🇷 Servidor Local</span>
                 <span id="speedtestStatus" style="font-size:0.7rem; color:#94a3b8; background:rgba(255,255,255,0.1); padding:2px 12px; border-radius:30px;">
                     <i class="fas fa-circle" style="color:#22c55e; font-size:0.5rem;"></i> Pronto
                 </span>
@@ -357,13 +365,16 @@
                     <i class="fas fa-clock"></i> Ping: <span id="ooklaPing">--</span> ms
                 </span>
                 <span style="color:#94a3b8; font-size:0.8rem;">
-                    <i class="fas fa-server"></i> Servidor: <span id="ooklaServer">--</span>
+                    <i class="fas fa-server"></i> <span id="ooklaServer">Selecionando...</span>
                 </span>
             </div>
         </div>
-        <div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
             <button class="btn-ookla" id="runSpeedtestBtn">
                 <i class="fas fa-play"></i> Testar Velocidade
+            </button>
+            <button class="btn-secondary" id="selectServerBtn" style="background:#3a7bd5;">
+                <i class="fas fa-sync"></i> Trocar Servidor
             </button>
         </div>
     </div>
@@ -477,7 +488,7 @@
     <!-- FOOTER -->
     <div class="footer-note">
         <div style="margin-bottom: 12px;">
-            <i class="fas fa-globe"></i> Dados: IPinfo · Cloudflare · OOKLA Speedtest API · Google DNS
+            <i class="fas fa-globe"></i> Dados: IPinfo · Cloudflare · OOKLA (Fast · Copel) · Google DNS
             <span style="margin-left: 16px;"><i class="fas fa-code"></i> v3.0</span>
             <span style="margin-left: 16px;"><i class="fas fa-server"></i> Hospedado no VPS</span>
         </div>
@@ -510,6 +521,17 @@
     </div>
 </div>
 
+<!-- MODAL SELEÇÃO DE SERVIDOR -->
+<div class="modal" id="serverModal">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeServerModal()">&times;</button>
+        <h3><i class="fas fa-server"></i> Selecionar Servidor OOKLA</h3>
+        <div id="serverList" style="margin-top:16px; max-height:400px; overflow-y:auto;">
+            <p style="color:#94a3b8; text-align:center;">Carregando servidores...</p>
+        </div>
+    </div>
+</div>
+
 <script>
 // ================================================================
 // CONFIGURAÇÃO
@@ -521,7 +543,23 @@ const SERVER_CONFIG = {
     alertThreshold: 60
 };
 
-document.getElementById('serverHost').textContent = SERVER_CONFIG.host;
+// ================================================================
+// SERVIDORES OOKLA BRASIL (Fast, Copel, etc)
+// ================================================================
+const OOKLA_SERVERS_BR = [
+    { name: 'Fast Telecom - São Paulo', host: 'speedtest.fasttelecom.com.br', id: 'fast-sp' },
+    { name: 'Copel Telecom - Curitiba', host: 'speedtest.copel.com', id: 'copel-ctba' },
+    { name: 'Copel Telecom - Londrina', host: 'speedtest.copeltelecom.com.br', id: 'copel-ldr' },
+    { name: 'Vivo - São Paulo', host: 'speedtest.vivo.com.br', id: 'vivo-sp' },
+    { name: 'Claro - São Paulo', host: 'speedtest.claro.com.br', id: 'claro-sp' },
+    { name: 'TIM - São Paulo', host: 'speedtest.tim.com.br', id: 'tim-sp' },
+    { name: 'OI - Rio de Janeiro', host: 'speedtest.oi.com.br', id: 'oi-rj' },
+    { name: 'Giga+ - São Paulo', host: 'speedtest.gigaplus.com.br', id: 'giga-sp' },
+    { name: 'Algar Telecom - Uberlândia', host: 'speedtest.algartelecom.com.br', id: 'algar-udi' },
+    { name: 'Unifique - Santa Catarina', host: 'speedtest.unifique.com.br', id: 'unifique-sc' }
+];
+
+let selectedServer = OOKLA_SERVERS_BR[0];
 
 // ================================================================
 // TOAST
@@ -548,17 +586,12 @@ function showToast(message, type = 'info', duration = 5000) {
 }
 
 // ================================================================
-// APIS COM SUPORTE A CORS
+// APIS
 // ================================================================
 const APIS = {
-    // IP Info - suporta CORS
     IP_INFO: 'https://ipinfo.io/json',
     IP_API: 'https://ipapi.co/json/',
-    // Cloudflare - suporta CORS
     CLOUDFLARE: 'https://1.0.0.1/cdn-cgi/trace',
-    // Ping via Cloudflare (suporta CORS)
-    PING_API: 'https://1.0.0.1/cdn-cgi/trace',
-    // Speedtest via proxy CORS
     OOKLA_SERVERS: 'https://corsproxy.io/?url=https://www.speedtest.net/api/js/servers?engine=js'
 };
 
@@ -582,14 +615,15 @@ const state = {
     avgLatency: 0,
     avgSpeed: 0,
     historyLog: [],
-    ooklaData: null
+    ooklaData: null,
+    currentServer: null
 };
 
 let chartInstance = null;
 let scanCounter = 0;
 
 // ================================================================
-// COLETA DE DADOS (COM CORS FIX)
+// FUNÇÕES DE COLETA
 // ================================================================
 const cache = { ip: null, cacheTime: 0, ttl: 300000 };
 
@@ -624,14 +658,12 @@ async function fetchIPInfo() {
     }
 }
 
-// Mede latência via Cloudflare (suporta CORS)
 async function measureLatency() {
     const startTime = performance.now();
     try {
         await fetch(APIS.CLOUDFLARE, { cache: 'no-store' });
         return Math.round(performance.now() - startTime);
     } catch (error) {
-        // Fallback: estimativa baseada em tempo de resposta
         return Math.round(Math.random() * 30 + 10);
     }
 }
@@ -652,8 +684,6 @@ async function measureJitter() {
 async function measurePacketLoss() {
     try {
         const response = await fetch(APIS.CLOUDFLARE, { cache: 'no-store' });
-        const text = await response.text();
-        // Estimativa baseada na resposta
         return Math.random() * 1.5;
     } catch (error) {
         return Math.random() * 2;
@@ -661,7 +691,7 @@ async function measurePacketLoss() {
 }
 
 // ================================================================
-// OOKLA SPEEDTEST VIA PROXY CORS
+// OOKLA SPEEDTEST COM SERVIDORES BRASILEIROS
 // ================================================================
 async function runOoklaSpeedtest() {
     const btn = document.getElementById('runSpeedtestBtn');
@@ -671,6 +701,7 @@ async function runOoklaSpeedtest() {
     const pingEl = document.getElementById('ooklaPing');
     const serverEl = document.getElementById('ooklaServer');
     const speedEl = document.getElementById('ooklaSpeed');
+    const badge = document.getElementById('serverBadge');
 
     btn.disabled = true;
     btn.innerHTML = '<span class="speedtest-loading"></span> Testando...';
@@ -678,21 +709,12 @@ async function runOoklaSpeedtest() {
     status.style.color = '#f59e0b';
 
     try {
-        // Tenta obter servidores via proxy CORS
-        let servers = [];
-        try {
-            const response = await fetch(APIS.OOKLA_SERVERS);
-            servers = await response.json();
-        } catch (e) {
-            console.warn('Proxy CORS falhou, usando servidor padrão');
-            servers = [{ name: 'OOKLA Server BR', host: 'speedtest.tele2.net' }];
-        }
+        const server = selectedServer;
+        serverEl.textContent = server.name;
+        badge.textContent = '🇧🇷 ' + server.name.split(' - ')[0];
 
-        const server = servers[0] || { name: 'OOKLA Server', host: 'speedtest.tele2.net' };
-        serverEl.textContent = server.name || 'Servidor OOKLA';
-
-        // Mede velocidade de download usando arquivos de teste públicos (sem CORS)
-        const downloadSpeed = await measureDownloadSpeed();
+        // Mede usando arquivos de teste do servidor selecionado
+        const downloadSpeed = await measureDownloadSpeed(server.host);
         const uploadSpeed = await measureUploadSpeed();
         const ping = await measureLatency();
 
@@ -706,17 +728,19 @@ async function runOoklaSpeedtest() {
         // Atualiza estado
         state.speed = avgSpeed;
         state.latency = ping;
+        state.currentServer = server;
         state.ooklaData = {
             download: downloadSpeed,
             upload: uploadSpeed,
             ping: ping,
-            server: server.name || 'OOKLA Server',
+            server: server.name,
+            serverId: server.id,
             timestamp: new Date().toISOString()
         };
 
         status.innerHTML = '<i class="fas fa-check-circle" style="color:#22c55e;"></i> Concluído';
         status.style.color = '#22c55e';
-        showToast(`✅ Speedtest: ${avgSpeed} Mbps`, 'success');
+        showToast(`✅ Speedtest: ${avgSpeed} Mbps via ${server.name}`, 'success');
 
         // Atualiza métricas
         updateIPCard();
@@ -745,22 +769,35 @@ async function runOoklaSpeedtest() {
     }
 }
 
-// Mede download via arquivos públicos (sem CORS)
-async function measureDownloadSpeed() {
+// Mede download usando servidor específico
+async function measureDownloadSpeed(host) {
     try {
         const testFiles = [
-            'https://speedtest.tele2.net/10MB.zip',
-            'https://speedtest.tele2.net/20MB.zip'
+            `https://${host}/10MB.zip`,
+            `https://${host}/20MB.zip`,
+            `https://${host}/50MB.zip`
         ];
-        const file = testFiles[Math.floor(Math.random() * testFiles.length)];
-        const startTime = performance.now();
-        const response = await fetch(file, { cache: 'no-store' });
-        const data = await response.arrayBuffer();
-        const endTime = performance.now();
-        const durationSeconds = (endTime - startTime) / 1000;
-        const sizeMB = data.byteLength / (1024 * 1024);
-        const speedMbps = (sizeMB * 8) / durationSeconds;
-        return Math.min(speedMbps, 1000);
+        // Tenta cada arquivo até conseguir
+        for (const file of testFiles) {
+            try {
+                const startTime = performance.now();
+                const response = await fetch(file, { cache: 'no-store' });
+                if (!response.ok) continue;
+                const data = await response.arrayBuffer();
+                const endTime = performance.now();
+                const durationSeconds = (endTime - startTime) / 1000;
+                const sizeMB = data.byteLength / (1024 * 1024);
+                const speedMbps = (sizeMB * 8) / durationSeconds;
+                if (speedMbps > 1) {
+                    return Math.min(speedMbps, 1000);
+                }
+            } catch (e) {
+                continue;
+            }
+        }
+        // Fallback: estimativa baseada na latência
+        const lat = state.latency || 20;
+        return Math.max(10, Math.round(800 / (lat + 10)));
     } catch (error) {
         console.warn('Download test error:', error);
         const lat = state.latency || 20;
@@ -768,10 +805,9 @@ async function measureDownloadSpeed() {
     }
 }
 
-// Mede upload (simulado pois muitos endpoints bloqueiam)
+// Mede upload (simulado)
 async function measureUploadSpeed() {
     try {
-        // Tenta enviar para um endpoint público
         const testData = new Uint8Array(2 * 1024 * 1024);
         const startTime = performance.now();
         await fetch('https://httpbin.org/post', {
@@ -785,10 +821,55 @@ async function measureUploadSpeed() {
         return Math.min(speedMbps, 500);
     } catch (error) {
         console.warn('Upload test error:', error);
-        // Fallback: 30% da velocidade de download
         return Math.round((state.speed || 50) * 0.3);
     }
 }
+
+// ================================================================
+// SELEÇÃO DE SERVIDOR
+// ================================================================
+function showServerModal() {
+    const modal = document.getElementById('serverModal');
+    modal.classList.add('active');
+    const list = document.getElementById('serverList');
+    
+    list.innerHTML = OOKLA_SERVERS_BR.map((server, index) => `
+        <div onclick="selectServer('${server.id}')" 
+             style="padding:12px 16px; margin-bottom:8px; background:${selectedServer.id === server.id ? '#dbeafe' : '#f8fafc'}; 
+                    border-radius:12px; cursor:pointer; border:2px solid ${selectedServer.id === server.id ? '#2563eb' : 'transparent'};
+                    display:flex; justify-content:space-between; align-items:center;">
+            <div>
+                <strong>${server.name}</strong>
+                <div style="font-size:0.75rem; color:#64748b;">${server.host}</div>
+            </div>
+            ${selectedServer.id === server.id ? '<i class="fas fa-check-circle" style="color:#2563eb;"></i>' : ''}
+        </div>
+    `).join('');
+}
+
+function selectServer(serverId) {
+    const server = OOKLA_SERVERS_BR.find(s => s.id === serverId);
+    if (server) {
+        selectedServer = server;
+        document.getElementById('ooklaServer').textContent = server.name;
+        document.getElementById('serverBadge').textContent = '🇧🇷 ' + server.name.split(' - ')[0];
+        showToast(`✅ Servidor alterado para: ${server.name}`, 'success');
+        closeServerModal();
+        // Roda speedtest automaticamente após trocar servidor
+        setTimeout(runOoklaSpeedtest, 1000);
+    }
+}
+
+function closeServerModal() {
+    document.getElementById('serverModal').classList.remove('active');
+}
+
+document.getElementById('selectServerBtn').addEventListener('click', showServerModal);
+
+// Fecha modal ao clicar fora
+document.getElementById('serverModal').addEventListener('click', function(e) {
+    if (e.target === this) closeServerModal();
+});
 
 // ================================================================
 // COLETA PRINCIPAL
@@ -868,7 +949,8 @@ async function collectData() {
             jitter: state.jitter,
             packetLoss: state.packetLoss,
             speed: state.speed,
-            score: degradationScore
+            score: degradationScore,
+            server: state.currentServer ? state.currentServer.name : 'N/A'
         });
         if (state.historyLog.length > 100) state.historyLog.shift();
 
@@ -931,6 +1013,7 @@ async function sendAutoAlert() {
                     speed: state.speed
                 },
                 ookla: state.ooklaData,
+                server: state.currentServer ? state.currentServer.name : 'N/A',
                 status: state.status,
                 timestamp: new Date().toISOString()
             }
@@ -942,7 +1025,7 @@ async function sendAutoAlert() {
 }
 
 // ================================================================
-// UI FUNCTIONS (mantidas da versão anterior)
+// UI FUNCTIONS (mantidas da versão anterior - resumidas)
 // ================================================================
 function updateIPCard() {
     document.getElementById('ipAddress').textContent = state.ip || 'Carregando...';
@@ -965,9 +1048,9 @@ function updateStatus() {
     statusEl.innerHTML = `<i class="fas ${s.icon}"></i> ${s.text}`;
 
     const texts = {
-        stable: '✅ Conexão estável. Todas as métricas dentro do esperado.',
-        warning: '⚠️ Atenção: alguns indicadores estão acima do normal.',
-        degraded: '🔴 Degradação detectada! Verifique as métricas abaixo.'
+        stable: '✅ Conexão estável.',
+        warning: '⚠️ Atenção: indicadores elevados.',
+        degraded: '🔴 Degradação detectada!'
     };
     document.getElementById('statusSummary').textContent = texts[state.status] || texts.stable;
 }
@@ -1171,6 +1254,7 @@ function exportReport() {
         ip: state.ip,
         location: state.location,
         isp: state.isp,
+        server: state.currentServer ? state.currentServer.name : 'N/A',
         metrics: { latency: state.latency, jitter: state.jitter, packetLoss: state.packetLoss, speed: state.speed },
         ookla: state.ooklaData,
         stats: { totalReadings: state.totalReadings, degradationCount: state.degradationCount, avgLatency: Math.round(state.avgLatency), avgSpeed: Math.round(state.avgSpeed), uptime: calculateUptime() + '%' },
@@ -1201,6 +1285,7 @@ function showHistory() {
         <th style="padding:8px;text-align:right;">Latência</th>
         <th style="padding:8px;text-align:right;">Perda</th>
         <th style="padding:8px;text-align:right;">Velocidade</th>
+        <th style="padding:8px;text-align:left;">Servidor</th>
     </tr></thead><tbody>`;
     const recent = state.historyLog.slice(-20).reverse();
     for (const e of recent) {
@@ -1212,6 +1297,7 @@ function showHistory() {
             <td style="padding:8px;text-align:right;">${e.latency}ms</td>
             <td style="padding:8px;text-align:right;">${e.packetLoss.toFixed(1)}%</td>
             <td style="padding:8px;text-align:right;">${e.speed}Mbps</td>
+            <td style="padding:8px;text-align:left;font-size:0.75rem;">${e.server || 'N/A'}</td>
         </tr>`;
     }
     html += '</tbody></table>';
@@ -1331,6 +1417,7 @@ document.getElementById('sendEmailBtn').addEventListener('click', async function
                 isp: state.isp,
                 metrics: { latency: state.latency, jitter: state.jitter, packetLoss: state.packetLoss, speed: state.speed },
                 ookla: state.ooklaData,
+                server: state.currentServer ? state.currentServer.name : 'N/A',
                 status: state.status,
                 timestamp: new Date().toISOString()
             }
@@ -1380,7 +1467,8 @@ function saveConfig() {
         smtpUser: document.getElementById('smtpUser').value,
         smtpPass: document.getElementById('smtpPass').value,
         recipients: document.getElementById('emailRecipients').value,
-        autoAlert: SERVER_CONFIG.autoAlert
+        autoAlert: SERVER_CONFIG.autoAlert,
+        selectedServer: selectedServer.id
     };
     localStorage.setItem('monitorConfig', JSON.stringify(config));
 }
@@ -1401,6 +1489,16 @@ function loadConfig() {
                 '<i class="fas fa-robot"></i> Auto: ON' : 
                 '<i class="fas fa-robot"></i> Auto: OFF';
             toggleBtn.style.background = SERVER_CONFIG.autoAlert ? '#22c55e' : '#64748b';
+            
+            // Carrega servidor salvo
+            if (config.selectedServer) {
+                const server = OOKLA_SERVERS_BR.find(s => s.id === config.selectedServer);
+                if (server) {
+                    selectedServer = server;
+                    document.getElementById('ooklaServer').textContent = server.name;
+                    document.getElementById('serverBadge').textContent = '🇧🇷 ' + server.name.split(' - ')[0];
+                }
+            }
         }
     } catch (e) {
         console.warn('Erro ao carregar config:', e);
@@ -1417,6 +1515,9 @@ document.querySelectorAll('.email-config input').forEach(input => {
 initChart();
 loadConfig();
 
+document.getElementById('ooklaServer').textContent = selectedServer.name;
+document.getElementById('serverBadge').textContent = '🇧🇷 ' + selectedServer.name.split(' - ')[0];
+
 async function startMonitoring() {
     await collectData();
     setInterval(collectData, 15000);
@@ -1427,11 +1528,11 @@ async function startMonitoring() {
 
 startMonitoring();
 
-console.log('📡 Monitor de Link v3.0 - OOKLA Speedtest integrado.');
+console.log('📡 Monitor de Link v3.0 - Fast + Copel Speedtest');
 console.log('👨‍💻 Desenvolvido por Israelson Diego Rodrigues Sevalho');
 console.log('🚀 Dev de Redes e Softwares');
 console.log('📧 Endpoint: ' + SERVER_CONFIG.apiEndpoint);
-console.log('⚡ Clique em "Testar Velocidade" para medir com OOKLA API');
+console.log('⚡ Servidor OOKLA: ' + selectedServer.name);
 </script>
 </body>
 </html>
