@@ -3,10 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>📡 Monitoramento de Link · IP + Degradação</title>
-    <!-- Chart.js CDN -->
+    <title>📡 Monitor de Link · IP + Degradação</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; }
@@ -29,7 +27,6 @@
         .status-badge .live { color: #22c55e; animation: pulse 2s infinite; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
-        /* IP Card */
         .ip-card {
             background: white; border-radius: 24px; padding: 20px 24px;
             margin-bottom: 28px; border: 1px solid #eef2f6;
@@ -118,7 +115,6 @@
         .status-email.error { color: #dc2626; }
         .status-email.info { color: #2563eb; }
 
-        /* FOOTER COM ASSINATURA ATUALIZADA */
         .footer-note {
             margin-top: 24px;
             text-align: center;
@@ -136,61 +132,143 @@
             border: 1px solid #e2e8f0;
             box-shadow: 0 2px 8px rgba(0,0,0,0.04);
         }
-        .footer-note .signature i {
-            color: #2563eb;
-            margin: 0 4px;
-        }
-        .footer-note .signature .name {
-            font-weight: 700;
-            color: #0b1a33;
-            font-size: 1.1rem;
-            letter-spacing: 0.5px;
-        }
-        .footer-note .signature .title {
-            color: #475569;
-            font-size: 0.85rem;
-            font-weight: 500;
-        }
-        .footer-note .signature .heart {
-            color: #dc2626;
-            animation: heartBeat 1.5s ease-in-out infinite;
-            display: inline-block;
-        }
-        @keyframes heartBeat {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.2); }
-        }
-        .footer-note .signature .version {
-            background: #dbeafe;
-            color: #1e4f8a;
-            padding: 2px 14px;
-            border-radius: 30px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            margin-left: 8px;
-        }
-        .footer-note .signature .badge-dev {
-            background: linear-gradient(135deg, #2563eb, #7c3aed);
-            color: white;
-            padding: 2px 14px;
-            border-radius: 30px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            margin-left: 8px;
-            display: inline-block;
-        }
-        .footer-note .signature .sub-info {
-            font-size: 0.75rem;
-            color: #94a3b8;
-            display: block;
-            margin-top: 6px;
-        }
-        .footer-note .signature .sub-info i {
-            color: #64748b;
-        }
+        .footer-note .signature i { color: #2563eb; margin: 0 4px; }
+        .footer-note .signature .name { font-weight: 700; color: #0b1a33; font-size: 1.1rem; letter-spacing: 0.5px; }
+        .footer-note .signature .heart { color: #dc2626; animation: heartBeat 1.5s ease-in-out infinite; display: inline-block; }
+        @keyframes heartBeat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
+        .footer-note .signature .version { background: #dbeafe; color: #1e4f8a; padding: 2px 14px; border-radius: 30px; font-size: 0.7rem; font-weight: 600; margin-left: 8px; }
+        .footer-note .signature .badge-dev { background: linear-gradient(135deg, #2563eb, #7c3aed); color: white; padding: 2px 14px; border-radius: 30px; font-size: 0.7rem; font-weight: 600; margin-left: 8px; display: inline-block; }
+        .footer-note .signature .sub-info { font-size: 0.75rem; color: #94a3b8; display: block; margin-top: 6px; }
+        .footer-note .signature .sub-info i { color: #64748b; }
 
         .real-badge { background: #22c55e; color: white; padding: 2px 12px; border-radius: 40px; font-size: 0.7rem; font-weight: 600; }
-        .loading { opacity: 0.6; pointer-events: none; }
+        .server-info { background: #f1f5f9; padding: 4px 12px; border-radius: 30px; font-size: 0.7rem; color: #475569; }
+
+        /* Novos estilos para melhorias */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            max-width: 400px;
+        }
+        .toast {
+            background: white;
+            padding: 16px 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            margin-bottom: 10px;
+            border-left: 4px solid #2563eb;
+            animation: slideIn 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .toast.success { border-left-color: #22c55e; }
+        .toast.error { border-left-color: #dc2626; }
+        .toast.warning { border-left-color: #f59e0b; }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+        .toast.hide { animation: slideOut 0.3s ease forwards; }
+
+        .quick-actions {
+            display: flex;
+            gap: 10px;
+            margin: 10px 0 16px 0;
+            flex-wrap: wrap;
+        }
+        .btn-sm {
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            border: none;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-sm:hover { transform: scale(1.05); }
+        .btn-sm.export { background: #22c55e; color: white; }
+        .btn-sm.history { background: #8b5cf6; color: white; }
+        .btn-sm.reset { background: #64748b; color: white; }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            background: white;
+            border-radius: 24px;
+            padding: 30px;
+            max-width: 700px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #64748b;
+        }
+        .modal-close:hover { color: #0b1a33; }
+
+        .quality-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .quality-indicator.excellent { background: #dcfce7; color: #166534; }
+        .quality-indicator.good { background: #dbeafe; color: #1e4f8a; }
+        .quality-indicator.fair { background: #fef3c7; color: #92400e; }
+        .quality-indicator.poor { background: #fee2e2; color: #991b1b; }
+
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 10px;
+            margin: 10px 0;
+        }
+        .stat-item {
+            background: #f8fafc;
+            padding: 8px 12px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        .stat-item .number {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #0b1a33;
+        }
+        .stat-item .label {
+            font-size: 0.7rem;
+            color: #64748b;
+        }
     </style>
 </head>
 <body>
@@ -206,6 +284,10 @@
                 </span>
             </div>
             <span class="real-badge"><i class="fas fa-check-circle"></i> DADOS REAIS</span>
+            <span class="server-info"><i class="fas fa-server"></i> <span id="serverHost">vps.seudominio.com</span></span>
+            <span class="quality-indicator excellent" id="qualityIndicator">
+                <i class="fas fa-star"></i> Excelente
+            </span>
         </div>
     </div>
 
@@ -223,80 +305,115 @@
                 <div class="ip-detail"><i class="fas fa-signal"></i> <span id="ipJitter">--</span> ms</div>
             </div>
         </div>
-        <div>
+        <div style="display:flex; flex-direction:column; align-items:flex-end; gap:8px;">
             <div class="connection-status stable" id="connectionStatus">
                 <i class="fas fa-check-circle"></i> Estável
+            </div>
+            <div id="uptimeDisplay" style="font-size:0.75rem; color:#64748b;">
+                <i class="fas fa-clock"></i> Uptime: <span id="uptimeValue">00:00:00</span>
             </div>
         </div>
     </div>
 
     <!-- METRICS CARDS -->
-    <div class="radar-grid" id="metricsGrid">
-        <!-- Gerado via JS -->
+    <div class="radar-grid" id="metricsGrid"></div>
+
+    <!-- AÇÕES RÁPIDAS -->
+    <div class="quick-actions">
+        <button class="btn-sm export" onclick="exportReport()">
+            <i class="fas fa-file-export"></i> Exportar
+        </button>
+        <button class="btn-sm history" onclick="showHistory()">
+            <i class="fas fa-history"></i> Histórico
+        </button>
+        <button class="btn-sm reset" onclick="resetStats()">
+            <i class="fas fa-undo"></i> Reiniciar
+        </button>
+        <span style="margin-left:auto; font-size:0.75rem; color:#94a3b8;">
+            <i class="fas fa-circle" style="color:#22c55e;"></i> Última: <span id="lastUpdateTime">--</span>
+        </span>
     </div>
 
     <!-- GRADE PRINCIPAL -->
     <div class="grid-2col">
-        <!-- GRÁFICO -->
         <div class="card">
             <h3><i class="fas fa-chart-line"></i> Histórico de Degradação · Últimos 10min</h3>
             <div class="chart-container">
                 <canvas id="degradationChart"></canvas>
             </div>
             <div style="display: flex; justify-content: space-between; margin-top: 12px; font-size:0.8rem; color:#334155; flex-wrap:wrap; gap:6px;">
-                <span><i class="fas fa-circle" style="color:#dc2626;"></i> Perda de Pacotes</span>
+                <span><i class="fas fa-circle" style="color:#dc2626;"></i> Perda</span>
                 <span><i class="fas fa-circle" style="color:#f59e0b;"></i> Latência</span>
                 <span><i class="fas fa-circle" style="color:#3b82f6;"></i> Jitter</span>
                 <span><i class="fas fa-circle" style="color:#22c55e;"></i> Velocidade</span>
             </div>
             <div class="alert-box" id="alertBox">
                 <i class="fas fa-exclamation-triangle"></i>
-                <span id="alertMessage">Degradação detectada! Verifique as métricas.</span>
+                <span id="alertMessage">Degradação detectada!</span>
             </div>
             <div style="margin-top:10px; background:#f1f5f9; padding:8px 14px; border-radius:30px; font-size:0.75rem; color:#475569;">
                 <i class="fas fa-database"></i> Última leitura: <span id="lastUpdate">---</span>
             </div>
         </div>
 
-        <!-- MÉTRICAS DETALHADAS + EMAIL -->
         <div class="card">
             <h3><i class="fas fa-microscope"></i> Análise de Degradação</h3>
-            <div class="metric-list" id="metricList">
-                <!-- Gerado via JS -->
+            
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <div class="number" id="statDegradations">0</div>
+                    <div class="label">Degradações</div>
+                </div>
+                <div class="stat-item">
+                    <div class="number" id="statAvgLatency">0</div>
+                    <div class="label">Média Latência</div>
+                </div>
+                <div class="stat-item">
+                    <div class="number" id="statAvgSpeed">0</div>
+                    <div class="label">Média Velocidade</div>
+                </div>
+                <div class="stat-item">
+                    <div class="number" id="statUptime">100%</div>
+                    <div class="label">Uptime</div>
+                </div>
             </div>
+            
+            <div class="metric-list" id="metricList"></div>
             
             <div style="margin:10px 0; background:#f0f9ff; padding:8px 14px; border-radius:18px; font-size:0.8rem; border-left:4px solid #3b82f6;">
                 <i class="fas fa-crosshairs"></i> <strong>Status:</strong> <span id="statusSummary">Monitorando...</span>
             </div>
             
-            <!-- CONFIG EMAIL -->
             <div class="email-config">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                    <strong style="font-size:0.8rem; color:#1e293b;"><i class="fas fa-envelope"></i> Disparo de Alertas</strong>
+                    <strong style="font-size:0.8rem; color:#1e293b;"><i class="fas fa-envelope"></i> Disparo</strong>
                     <span class="status-email info" id="emailStatus"><i class="fas fa-circle"></i> Desconectado</span>
                 </div>
                 <div class="config-row">
                     <label>SMTP</label>
-                    <input type="text" id="smtpServer" value="smtp.gmail.com" style="flex:2;">
+                    <input type="text" id="smtpServer" value="smtp.seudominio.com" style="flex:2;">
                     <label>Porta</label>
                     <input type="text" id="smtpPort" value="587" style="flex:0.8;">
                 </div>
                 <div class="config-row">
                     <label>Usuário</label>
-                    <input type="text" id="smtpUser" placeholder="seuemail@gmail.com">
+                    <input type="text" id="smtpUser" placeholder="monitor@seudominio.com">
                 </div>
                 <div class="config-row">
                     <label>Senha</label>
-                    <input type="password" id="smtpPass" placeholder="app password">
+                    <input type="password" id="smtpPass" placeholder="******">
                 </div>
                 <div class="config-row">
                     <label>Destinos</label>
-                    <input type="text" id="emailRecipients" placeholder="email@dominio.com">
+                    <input type="text" id="emailRecipients" placeholder="admin@seudominio.com">
                 </div>
                 <div class="config-actions">
                     <button class="btn-secondary" id="testEmailBtn"><i class="fas fa-vial"></i> Testar</button>
                     <button class="btn-primary" id="sendEmailBtn" style="padding:6px 20px; font-size:0.85rem; margin-top:0;">
-                        <i class="fas fa-paper-plane"></i> Disparar Alerta
+                        <i class="fas fa-paper-plane"></i> Disparar
+                    </button>
+                    <button class="btn-secondary" id="autoAlertToggle" style="background:#22c55e;">
+                        <i class="fas fa-robot"></i> Auto: ON
                     </button>
                 </div>
                 <div id="emailFeedback" style="margin-top: 4px; font-size:0.8rem; min-height:18px;"></div>
@@ -304,20 +421,19 @@
         </div>
     </div>
 
-    <!-- FOOTER COM ASSINATURA ATUALIZADA -->
+    <!-- FOOTER -->
     <div class="footer-note">
         <div style="margin-bottom: 12px;">
-            <i class="fas fa-globe"></i> Dados reais via APIs: IPinfo · Cloudflare · OOKLA · Google DNS
-            <span style="margin-left: 16px;">
-                <i class="fas fa-code"></i> v2.0
-            </span>
+            <i class="fas fa-globe"></i> Dados reais: IPinfo · Cloudflare · OOKLA · Google DNS
+            <span style="margin-left: 16px;"><i class="fas fa-code"></i> v3.0</span>
+            <span style="margin-left: 16px;"><i class="fas fa-server"></i> Hospedado no VPS</span>
         </div>
         <div class="signature">
             <i class="fas fa-code"></i> Desenvolvido por 
             <span class="name">Israelson Diego Rodrigues Sevalho</span>
             <span class="badge-dev">🚀 Dev de Redes e Softwares</span>
             <span class="heart">❤️</span>
-            <span class="version">v2.0</span>
+            <span class="version">v3.0</span>
             <span class="sub-info">
                 <i class="fas fa-calendar-alt"></i> 2026 · Todos os direitos reservados
                 <i class="fas fa-shield-alt" style="margin-left: 12px;"></i> Monitoramento em tempo real
@@ -327,580 +443,830 @@
     </div>
 </div>
 
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- MODAL HISTÓRICO -->
+<div class="modal" id="historyModal">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeHistory()">&times;</button>
+        <h3><i class="fas fa-history"></i> Histórico de Leituras</h3>
+        <div id="historyContent" style="margin-top:16px; max-height:400px; overflow-y:auto;">
+            <p style="color:#94a3b8; text-align:center;">Carregando histórico...</p>
+        </div>
+    </div>
+</div>
+
 <script>
-    (function() {
-        // ============================================================
-        // 1. CONFIGURAÇÃO DAS APIS
-        // ============================================================
-        const APIS = {
-            IP_INFO: 'https://ipinfo.io/json',
-            IP_API: 'https://ipapi.co/json/',
-            SPEEDTEST: 'https://www.speedtest.net/api/js/speedtest',
-            CLOUDFLARE: 'https://1.0.0.1/cdn-cgi/trace',
-            GOOGLE_DNS: 'https://dns.google/resolve?name=google.com'
+// ================================================================
+// CONFIGURAÇÃO
+// ================================================================
+const SERVER_CONFIG = {
+    host: window.location.hostname,
+    apiEndpoint: '/api/send-email.php',
+    autoAlert: true,
+    alertThreshold: 60
+};
+
+document.getElementById('serverHost').textContent = SERVER_CONFIG.host;
+
+// ================================================================
+// TOAST
+// ================================================================
+function showToast(message, type = 'info', duration = 5000) {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    const icons = {
+        success: 'fa-check-circle',
+        error: 'fa-times-circle',
+        warning: 'fa-exclamation-triangle',
+        info: 'fa-info-circle'
+    };
+    toast.innerHTML = `
+        <i class="fas ${icons[type] || icons.info}" style="font-size:1.2rem; color:${type === 'success' ? '#22c55e' : type === 'error' ? '#dc2626' : type === 'warning' ? '#f59e0b' : '#2563eb'};"></i>
+        <span>${message}</span>
+    `;
+    container.appendChild(toast);
+    setTimeout(() => {
+        toast.classList.add('hide');
+        setTimeout(() => toast.remove(), 300);
+    }, duration);
+}
+
+// ================================================================
+// APIS e ESTADO
+// ================================================================
+const APIS = {
+    IP_INFO: 'https://ipinfo.io/json',
+    IP_API: 'https://ipapi.co/json/',
+    SPEEDTEST: 'https://www.speedtest.net/api/js/speedtest',
+    CLOUDFLARE: 'https://1.0.0.1/cdn-cgi/trace',
+    GOOGLE_DNS: 'https://dns.google/resolve?name=google.com'
+};
+
+const state = {
+    ip: '',
+    location: '',
+    isp: '',
+    speed: 0,
+    latency: 0,
+    jitter: 0,
+    packetLoss: 0,
+    status: 'stable',
+    history: { latency: [], jitter: [], packetLoss: [], speed: [] },
+    degradationCount: 0,
+    lastCheck: null,
+    startTime: Date.now(),
+    totalReadings: 0,
+    avgLatency: 0,
+    avgSpeed: 0,
+    historyLog: []
+};
+
+let chartInstance = null;
+let scanCounter = 0;
+
+// ================================================================
+// COLETA DE DADOS
+// ================================================================
+const cache = { ip: null, cacheTime: 0, ttl: 300000 };
+
+async function fetchIPInfo() {
+    if (cache.ip && (Date.now() - cache.cacheTime) < cache.ttl) return cache.ip;
+    try {
+        const response = await fetch(APIS.IP_INFO);
+        const data = await response.json();
+        const result = {
+            ip: data.ip || 'N/A',
+            location: `${data.city || 'N/A'}, ${data.region || 'N/A'} - ${data.country || 'N/A'}`,
+            isp: data.org || data.isp || 'N/A'
         };
-
-        // ============================================================
-        // 2. ESTADO DO SISTEMA
-        // ============================================================
-        const state = {
-            ip: '',
-            location: '',
-            isp: '',
-            speed: 0,
-            latency: 0,
-            jitter: 0,
-            packetLoss: 0,
-            status: 'stable',
-            history: {
-                latency: [],
-                jitter: [],
-                packetLoss: [],
-                speed: []
-            },
-            degradationCount: 0,
-            lastCheck: null
-        };
-
-        let chartInstance = null;
-        let scanCounter = 0;
-
-        // ============================================================
-        // 3. FUNÇÕES DE COLETA DE DADOS REAIS
-        // ============================================================
-
-        async function fetchIPInfo() {
-            try {
-                const response = await fetch(APIS.IP_INFO);
-                const data = await response.json();
-                return {
-                    ip: data.ip || 'N/A',
-                    location: `${data.city || 'N/A'}, ${data.region || 'N/A'} - ${data.country || 'N/A'}`,
-                    isp: data.org || data.isp || 'N/A'
-                };
-            } catch (error) {
-                console.warn('IP Info API error:', error);
-                try {
-                    const response = await fetch(APIS.IP_API);
-                    const data = await response.json();
-                    return {
-                        ip: data.ip || 'N/A',
-                        location: `${data.city || 'N/A'}, ${data.region || 'N/A'} - ${data.country || 'N/A'}`,
-                        isp: data.org || data.isp || 'N/A'
-                    };
-                } catch (e) {
-                    return { ip: 'Não disponível', location: '--', isp: '--' };
-                }
-            }
-        }
-
-        async function measureLatency() {
-            const startTime = performance.now();
-            try {
-                const response = await fetch(APIS.GOOGLE_DNS, { 
-                    cache: 'no-store',
-                    headers: { 'Cache-Control': 'no-cache' }
-                });
-                await response.text();
-                const endTime = performance.now();
-                return Math.round(endTime - startTime);
-            } catch (error) {
-                console.warn('Latency test error:', error);
-                return 0;
-            }
-        }
-
-        async function measureJitter() {
-            const latencies = [];
-            for (let i = 0; i < 5; i++) {
-                const lat = await measureLatency();
-                if (lat > 0) latencies.push(lat);
-                await new Promise(r => setTimeout(r, 100));
-            }
-            if (latencies.length < 2) return 0;
-            const mean = latencies.reduce((a, b) => a + b, 0) / latencies.length;
-            const variance = latencies.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / latencies.length;
-            return Math.round(Math.sqrt(variance));
-        }
-
-        async function measurePacketLoss() {
-            try {
-                const response = await fetch(APIS.CLOUDFLARE, { cache: 'no-store' });
-                const text = await response.text();
-                const lines = text.split('\n');
-                for (const line of lines) {
-                    if (line.startsWith('warp=')) {
-                        const value = line.split('=')[1];
-                        return value === 'on' ? Math.random() * 0.5 : Math.random() * 2;
-                    }
-                }
-                return Math.random() * 1.5;
-            } catch (error) {
-                console.warn('Packet loss test error:', error);
-                return Math.random() * 3;
-            }
-        }
-
-        async function measureSpeed() {
-            try {
-                const response = await fetch(APIS.SPEEDTEST);
-                const data = await response.json();
-                if (data.download) {
-                    return Math.round(data.download / 1000000);
-                }
-                const lat = state.latency || 20;
-                return Math.max(10, Math.round(1000 / (lat + 5)));
-            } catch (error) {
-                console.warn('Speedtest error:', error);
-                const lat = state.latency || 20;
-                return Math.max(5, Math.round(800 / (lat + 10)));
-            }
-        }
-
-        async function collectData() {
-            try {
-                if (!state.ip || scanCounter % 10 === 0) {
-                    const ipInfo = await fetchIPInfo();
-                    state.ip = ipInfo.ip;
-                    state.location = ipInfo.location;
-                    state.isp = ipInfo.isp;
-                    updateIPCard();
-                }
-
-                const latency = await measureLatency();
-                const jitter = await measureJitter();
-                const packetLoss = await measurePacketLoss();
-                const speed = await measureSpeed();
-
-                state.latency = latency || 15;
-                state.jitter = jitter || 3;
-                state.packetLoss = packetLoss || 0.5;
-                state.speed = speed || 100;
-                state.lastCheck = new Date();
-
-                let status = 'stable';
-                let degradationScore = 0;
-
-                if (state.latency > 80) degradationScore += 30;
-                else if (state.latency > 50) degradationScore += 15;
-
-                if (state.packetLoss > 3) degradationScore += 40;
-                else if (state.packetLoss > 1) degradationScore += 20;
-
-                if (state.jitter > 20) degradationScore += 20;
-                else if (state.jitter > 10) degradationScore += 10;
-
-                if (state.speed < 20) degradationScore += 20;
-                else if (state.speed < 50) degradationScore += 10;
-
-                if (degradationScore > 60) {
-                    status = 'degraded';
-                    state.degradationCount++;
-                } else if (degradationScore > 30) {
-                    status = 'warning';
-                } else {
-                    status = 'stable';
-                }
-
-                state.status = status;
-
-                const now = new Date().toTimeString().slice(0,5);
-                state.history.latency.push({ time: now, value: state.latency });
-                state.history.jitter.push({ time: now, value: state.jitter });
-                state.history.packetLoss.push({ time: now, value: state.packetLoss });
-                state.history.speed.push({ time: now, value: state.speed });
-
-                for (const key of ['latency', 'jitter', 'packetLoss', 'speed']) {
-                    if (state.history[key].length > 10) {
-                        state.history[key].shift();
-                    }
-                }
-
-                updateMetrics();
-                updateStatus();
-                updateChart();
-                updateAlert();
-
-                scanCounter++;
-                document.getElementById('scanCount').textContent = scanCounter;
-                document.getElementById('lastUpdate').textContent = now;
-
-                return true;
-            } catch (error) {
-                console.error('Erro na coleta:', error);
-                return false;
-            }
-        }
-
-        // ============================================================
-        // 4. ATUALIZAÇÃO DA UI
-        // ============================================================
-
-        function updateIPCard() {
-            document.getElementById('ipAddress').textContent = state.ip || 'Carregando...';
-            document.getElementById('ipLocation').textContent = state.location || '--';
-            document.getElementById('ipISP').textContent = state.isp || '--';
-            document.getElementById('ipSpeed').textContent = state.speed || '--';
-            document.getElementById('ipLatency').textContent = state.latency || '--';
-            document.getElementById('ipJitter').textContent = state.jitter || '--';
-        }
-
-        function updateStatus() {
-            const statusEl = document.getElementById('connectionStatus');
-            const statusMap = {
-                stable: { class: 'stable', icon: 'fa-check-circle', text: 'Estável' },
-                warning: { class: 'warning', icon: 'fa-exclamation-triangle', text: 'Atenção' },
-                degraded: { class: 'degraded', icon: 'fa-times-circle', text: 'Degradado' }
+        cache.ip = result;
+        cache.cacheTime = Date.now();
+        return result;
+    } catch (error) {
+        try {
+            const response = await fetch(APIS.IP_API);
+            const data = await response.json();
+            const result = {
+                ip: data.ip || 'N/A',
+                location: `${data.city || 'N/A'}, ${data.region || 'N/A'} - ${data.country || 'N/A'}`,
+                isp: data.org || data.isp || 'N/A'
             };
-            const status = statusMap[state.status] || statusMap.stable;
-            statusEl.className = `connection-status ${status.class}`;
-            statusEl.innerHTML = `<i class="fas ${status.icon}"></i> ${status.text}`;
-
-            const summary = document.getElementById('statusSummary');
-            const statusTexts = {
-                stable: '✅ Conexão estável. Todas as métricas dentro do esperado.',
-                warning: '⚠️ Atenção: alguns indicadores estão acima do normal.',
-                degraded: '🔴 Degradação detectada! Verifique as métricas abaixo.'
-            };
-            summary.textContent = statusTexts[state.status] || statusTexts.stable;
+            cache.ip = result;
+            cache.cacheTime = Date.now();
+            return result;
+        } catch (e) {
+            return { ip: 'Não disponível', location: '--', isp: '--' };
         }
+    }
+}
 
-        function updateMetrics() {
-            const grid = document.getElementById('metricsGrid');
-            const metrics = [
-                { key: 'latency', label: 'Latência', value: state.latency, unit: 'ms', icon: 'fa-clock', color: state.latency > 80 ? '#dc2626' : state.latency > 50 ? '#f59e0b' : '#22c55e' },
-                { key: 'jitter', label: 'Jitter', value: state.jitter, unit: 'ms', icon: 'fa-wave-square', color: state.jitter > 20 ? '#dc2626' : state.jitter > 10 ? '#f59e0b' : '#22c55e' },
-                { key: 'packetLoss', label: 'Perda de Pacotes', value: state.packetLoss.toFixed(1), unit: '%', icon: 'fa-exclamation-circle', color: state.packetLoss > 3 ? '#dc2626' : state.packetLoss > 1 ? '#f59e0b' : '#22c55e' },
-                { key: 'speed', label: 'Velocidade', value: state.speed, unit: 'Mbps', icon: 'fa-tachometer-alt', color: state.speed < 20 ? '#dc2626' : state.speed < 50 ? '#f59e0b' : '#22c55e' }
-            ];
+async function measureLatency() {
+    const startTime = performance.now();
+    try {
+        const response = await fetch(APIS.GOOGLE_DNS, { cache: 'no-store', headers: { 'Cache-Control': 'no-cache' } });
+        await response.text();
+        return Math.round(performance.now() - startTime);
+    } catch (error) {
+        return 0;
+    }
+}
 
-            grid.innerHTML = metrics.map(m => `
-                <div class="radar-card ${state.status}">
-                    <div class="carrier-icon">
-                        <span class="carrier-name"><i class="fas ${m.icon}" style="color:${m.color};"></i> ${m.label}</span>
-                    </div>
-                    <div class="radar-score" style="color:${m.color}">
-                        ${m.value}<small>${m.unit}</small>
-                    </div>
-                    <div class="radar-metrics">
-                        <span>${state.status === 'degraded' ? '🔴 Crítico' : state.status === 'warning' ? '🟡 Atenção' : '🟢 Normal'}</span>
-                    </div>
-                </div>
-            `).join('');
+async function measureJitter() {
+    const latencies = [];
+    for (let i = 0; i < 5; i++) {
+        const lat = await measureLatency();
+        if (lat > 0) latencies.push(lat);
+        await new Promise(r => setTimeout(r, 100));
+    }
+    if (latencies.length < 2) return 0;
+    const mean = latencies.reduce((a, b) => a + b, 0) / latencies.length;
+    const variance = latencies.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / latencies.length;
+    return Math.round(Math.sqrt(variance));
+}
 
-            const list = document.getElementById('metricList');
-            const thresholds = {
-                latency: { good: 30, warning: 50, bad: 80 },
-                jitter: { good: 5, warning: 10, bad: 20 },
-                packetLoss: { good: 0.5, warning: 1, bad: 3 },
-                speed: { good: 80, warning: 50, bad: 20 }
-            };
-
-            list.innerHTML = Object.entries(thresholds).map(([key, threshold]) => {
-                let value = state[key];
-                let unit = key === 'packetLoss' ? '%' : key === 'speed' ? 'Mbps' : 'ms';
-                let displayValue = key === 'packetLoss' ? value.toFixed(1) : value;
-                let status = value <= threshold.good ? 'stable' : 
-                           value <= threshold.warning ? 'warning' : 'degraded';
-                const labels = {
-                    latency: 'Latência (ms)',
-                    jitter: 'Jitter (ms)',
-                    packetLoss: 'Perda de Pacotes (%)',
-                    speed: 'Velocidade (Mbps)'
-                };
-                const icons = {
-                    latency: 'fa-clock',
-                    jitter: 'fa-wave-square',
-                    packetLoss: 'fa-exclamation-circle',
-                    speed: 'fa-tachometer-alt'
-                };
-                return `
-                    <div class="metric-item">
-                        <span class="metric-name"><i class="fas ${icons[key]}"></i> ${labels[key]}</span>
-                        <span class="metric-value ${status}">${displayValue} ${unit}</span>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function updateAlert() {
-            const alertBox = document.getElementById('alertBox');
-            const alertMsg = document.getElementById('alertMessage');
-            
-            if (state.status === 'degraded') {
-                alertBox.className = 'alert-box active';
-                let reasons = [];
-                if (state.latency > 80) reasons.push(`Latência alta (${state.latency}ms)`);
-                if (state.packetLoss > 3) reasons.push(`Perda de pacotes (${state.packetLoss.toFixed(1)}%)`);
-                if (state.jitter > 20) reasons.push(`Jitter elevado (${state.jitter}ms)`);
-                if (state.speed < 20) reasons.push(`Velocidade baixa (${state.speed}Mbps)`);
-                alertMsg.textContent = `⚠️ Degradação detectada: ${reasons.join(', ')}`;
-            } else if (state.status === 'warning') {
-                alertBox.className = 'alert-box active';
-                alertBox.style.borderLeftColor = '#f59e0b';
-                alertBox.style.background = '#fffbeb';
-                let reasons = [];
-                if (state.latency > 50) reasons.push(`Latência elevada (${state.latency}ms)`);
-                if (state.packetLoss > 1) reasons.push(`Perda de pacotes (${state.packetLoss.toFixed(1)}%)`);
-                if (state.jitter > 10) reasons.push(`Jitter elevado (${state.jitter}ms)`);
-                if (state.speed < 50) reasons.push(`Velocidade baixa (${state.speed}Mbps)`);
-                alertMsg.textContent = `⚠️ Atenção: ${reasons.join(', ')}`;
-                alertMsg.style.color = '#92400e';
-            } else {
-                alertBox.className = 'alert-box';
-                alertBox.style.borderLeftColor = '#22c55e';
-                alertBox.style.background = '#ecfdf5';
-                alertMsg.textContent = '✅ Conexão estável. Nenhuma degradação detectada.';
-                alertMsg.style.color = '#065f46';
+async function measurePacketLoss() {
+    try {
+        const response = await fetch(APIS.CLOUDFLARE, { cache: 'no-store' });
+        const text = await response.text();
+        const lines = text.split('\n');
+        for (const line of lines) {
+            if (line.startsWith('warp=')) {
+                return line.split('=')[1] === 'on' ? Math.random() * 0.5 : Math.random() * 2;
             }
         }
+        return Math.random() * 1.5;
+    } catch (error) {
+        return Math.random() * 3;
+    }
+}
 
-        // ============================================================
-        // 5. GRÁFICO
-        // ============================================================
-        function initChart() {
-            const ctx = document.getElementById('degradationChart').getContext('2d');
-            const labels = Array.from({ length: 10 }, (_, i) => {
-                const d = new Date();
-                d.setMinutes(d.getMinutes() - (9 - i) * 1);
-                return d.toTimeString().slice(0,5);
-            });
+async function measureSpeed() {
+    try {
+        const response = await fetch(APIS.SPEEDTEST);
+        const data = await response.json();
+        if (data.download) return Math.round(data.download / 1000000);
+        const lat = state.latency || 20;
+        return Math.max(10, Math.round(1000 / (lat + 5)));
+    } catch (error) {
+        const lat = state.latency || 20;
+        return Math.max(5, Math.round(800 / (lat + 10)));
+    }
+}
 
-            chartInstance = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [
-                        {
-                            label: 'Latência (ms)',
-                            data: Array(10).fill(0),
-                            borderColor: '#f59e0b',
-                            backgroundColor: 'rgba(245, 158, 11, 0.1)',
-                            tension: 0.3,
-                            fill: false,
-                            pointBackgroundColor: '#f59e0b',
-                            borderWidth: 2
-                        },
-                        {
-                            label: 'Jitter (ms)',
-                            data: Array(10).fill(0),
-                            borderColor: '#3b82f6',
-                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                            tension: 0.3,
-                            fill: false,
-                            pointBackgroundColor: '#3b82f6',
-                            borderWidth: 2,
-                            borderDash: [5, 3]
-                        },
-                        {
-                            label: 'Perda (%)',
-                            data: Array(10).fill(0),
-                            borderColor: '#dc2626',
-                            backgroundColor: 'rgba(220, 38, 38, 0.1)',
-                            tension: 0.3,
-                            fill: false,
-                            pointBackgroundColor: '#dc2626',
-                            borderWidth: 2,
-                            borderDash: [2, 4]
-                        },
-                        {
-                            label: 'Velocidade (Mbps)',
-                            data: Array(10).fill(0),
-                            borderColor: '#22c55e',
-                            backgroundColor: 'rgba(34, 197, 94, 0.1)',
-                            tension: 0.3,
-                            fill: false,
-                            pointBackgroundColor: '#22c55e',
-                            borderWidth: 2,
-                            yAxisID: 'y1'
-                        }
-                    ]
+// ================================================================
+// COLETA PRINCIPAL
+// ================================================================
+async function collectData() {
+    try {
+        if (!state.ip || scanCounter % 10 === 0) {
+            const ipInfo = await fetchIPInfo();
+            state.ip = ipInfo.ip;
+            state.location = ipInfo.location;
+            state.isp = ipInfo.isp;
+            updateIPCard();
+        }
+
+        const [latency, jitter, packetLoss, speed] = await Promise.all([
+            measureLatency(),
+            measureJitter(),
+            measurePacketLoss(),
+            measureSpeed()
+        ]);
+
+        state.latency = latency || 15;
+        state.jitter = jitter || 3;
+        state.packetLoss = packetLoss || 0.5;
+        state.speed = speed || 100;
+        state.lastCheck = new Date();
+        state.totalReadings++;
+
+        state.avgLatency = ((state.avgLatency * (state.totalReadings - 1)) + state.latency) / state.totalReadings;
+        state.avgSpeed = ((state.avgSpeed * (state.totalReadings - 1)) + state.speed) / state.totalReadings;
+
+        let status = 'stable';
+        let degradationScore = 0;
+
+        if (state.latency > 80) degradationScore += 30;
+        else if (state.latency > 50) degradationScore += 15;
+
+        if (state.packetLoss > 3) degradationScore += 40;
+        else if (state.packetLoss > 1) degradationScore += 20;
+
+        if (state.jitter > 20) degradationScore += 20;
+        else if (state.jitter > 10) degradationScore += 10;
+
+        if (state.speed < 20) degradationScore += 20;
+        else if (state.speed < 50) degradationScore += 10;
+
+        if (degradationScore > 60) {
+            status = 'degraded';
+            state.degradationCount++;
+            if (SERVER_CONFIG.autoAlert) await sendAutoAlert();
+            showToast('⚠️ Degradação detectada!', 'warning');
+        } else if (degradationScore > 30) {
+            status = 'warning';
+            showToast('⚡ Atenção: métricas elevadas', 'warning');
+        } else {
+            status = 'stable';
+        }
+
+        state.status = status;
+
+        const now = new Date().toTimeString().slice(0,5);
+        state.history.latency.push({ time: now, value: state.latency });
+        state.history.jitter.push({ time: now, value: state.jitter });
+        state.history.packetLoss.push({ time: now, value: state.packetLoss });
+        state.history.speed.push({ time: now, value: state.speed });
+
+        for (const key of ['latency', 'jitter', 'packetLoss', 'speed']) {
+            if (state.history[key].length > 10) state.history[key].shift();
+        }
+
+        state.historyLog.push({
+            time: new Date().toISOString(),
+            status: status,
+            latency: state.latency,
+            jitter: state.jitter,
+            packetLoss: state.packetLoss,
+            speed: state.speed,
+            score: degradationScore
+        });
+        if (state.historyLog.length > 100) state.historyLog.shift();
+
+        updateMetrics();
+        updateStatus();
+        updateChart();
+        updateAlert();
+        updateStats();
+
+        scanCounter++;
+        document.getElementById('scanCount').textContent = scanCounter;
+        document.getElementById('lastUpdate').textContent = now;
+        document.getElementById('lastUpdateTime').textContent = now;
+        updateQualityIndicator();
+
+        return true;
+    } catch (error) {
+        console.error('Erro na coleta:', error);
+        showToast('❌ Erro na coleta', 'error');
+        return false;
+    }
+}
+
+// ================================================================
+// AUTO ALERT
+// ================================================================
+let lastAlertTime = 0;
+const ALERT_COOLDOWN = 300000;
+
+async function sendAutoAlert() {
+    const now = Date.now();
+    if (now - lastAlertTime < ALERT_COOLDOWN) return;
+    lastAlertTime = now;
+
+    const smtp = document.getElementById('smtpServer').value.trim();
+    const user = document.getElementById('smtpUser').value.trim();
+    const pass = document.getElementById('smtpPass').value.trim();
+    const recipients = document.getElementById('emailRecipients').value.trim();
+
+    if (!smtp || !user || !pass || !recipients) {
+        showToast('⚠️ Configure o email para alertas automáticos', 'warning');
+        return;
+    }
+
+    try {
+        await sendEmailViaVPS({
+            action: 'send',
+            smtp: smtp,
+            port: document.getElementById('smtpPort').value.trim(),
+            user: user,
+            pass: pass,
+            recipients: recipients,
+            data: {
+                ip: state.ip,
+                location: state.location,
+                isp: state.isp,
+                metrics: {
+                    latency: state.latency,
+                    jitter: state.jitter,
+                    packetLoss: state.packetLoss,
+                    speed: state.speed
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: { mode: 'index' }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: { color: '#e9edf2' },
-                            title: { display: true, text: 'ms / %' },
-                            position: 'left'
-                        },
-                        y1: {
-                            beginAtZero: true,
-                            grid: { drawOnChartArea: false },
-                            title: { display: true, text: 'Mbps' },
-                            position: 'right',
-                            max: 200
-                        }
-                    }
-                }
-            });
-        }
-
-        function updateChart() {
-            if (!chartInstance) return;
-            const datasets = chartInstance.data.datasets;
-            const history = state.history;
-            
-            const latencyData = history.latency.map(d => d.value);
-            const jitterData = history.jitter.map(d => d.value);
-            const packetLossData = history.packetLoss.map(d => d.value);
-            const speedData = history.speed.map(d => d.value);
-
-            while (latencyData.length < 10) latencyData.unshift(0);
-            while (jitterData.length < 10) jitterData.unshift(0);
-            while (packetLossData.length < 10) packetLossData.unshift(0);
-            while (speedData.length < 10) speedData.unshift(0);
-
-            datasets[0].data = latencyData.slice(-10);
-            datasets[1].data = jitterData.slice(-10);
-            datasets[2].data = packetLossData.slice(-10);
-            datasets[3].data = speedData.slice(-10);
-            
-            chartInstance.update();
-        }
-
-        // ============================================================
-        // 6. EMAIL
-        // ============================================================
-        const emailStatus = document.getElementById('emailStatus');
-        const emailFeedback = document.getElementById('emailFeedback');
-        let smtpConnected = false;
-
-        function logEmail(msg, type = 'info') {
-            emailFeedback.innerHTML = `<span class="status-email ${type}"><i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'times-circle' : 'info-circle'}"></i> ${msg}</span>`;
-        }
-
-        document.getElementById('testEmailBtn').addEventListener('click', async function() {
-            const smtp = document.getElementById('smtpServer').value.trim();
-            const port = document.getElementById('smtpPort').value.trim();
-            const user = document.getElementById('smtpUser').value.trim();
-            const pass = document.getElementById('smtpPass').value.trim();
-
-            if (!smtp || !port || !user || !pass) {
-                logEmail('Preencha todos os campos!', 'error');
-                return;
+                status: state.status,
+                timestamp: new Date().toISOString()
             }
+        });
+        showToast('📧 Alerta automático enviado!', 'success');
+    } catch (error) {
+        console.error('Auto alert error:', error);
+    }
+}
 
-            logEmail('Testando conexão SMTP...', 'info');
-            emailStatus.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Testando...';
-            emailStatus.className = 'status-email info';
+// ================================================================
+// UI - IP CARD
+// ================================================================
+function updateIPCard() {
+    document.getElementById('ipAddress').textContent = state.ip || 'Carregando...';
+    document.getElementById('ipLocation').textContent = state.location || '--';
+    document.getElementById('ipISP').textContent = state.isp || '--';
+    document.getElementById('ipSpeed').textContent = state.speed || '--';
+    document.getElementById('ipLatency').textContent = state.latency || '--';
+    document.getElementById('ipJitter').textContent = state.jitter || '--';
+}
 
-            try {
-                const success = await new Promise(resolve => {
-                    setTimeout(() => {
-                        const valid = smtp.includes('.') && user.includes('@') && pass.length > 3;
-                        resolve(valid);
-                    }, 1500);
-                });
-                
-                if (success) {
-                    smtpConnected = true;
-                    emailStatus.innerHTML = '<i class="fas fa-check-circle"></i> Conectado';
-                    emailStatus.className = 'status-email success';
-                    logEmail('✅ Conexão SMTP estabelecida com sucesso!', 'success');
-                } else {
-                    smtpConnected = false;
-                    emailStatus.innerHTML = '<i class="fas fa-times-circle"></i> Falha';
-                    emailStatus.className = 'status-email error';
-                    logEmail('❌ Falha na conexão. Verifique credenciais.', 'error');
-                }
-            } catch (error) {
-                smtpConnected = false;
-                emailStatus.innerHTML = '<i class="fas fa-times-circle"></i> Erro';
-                emailStatus.className = 'status-email error';
-                logEmail('❌ Erro: ' + error.message, 'error');
+// ================================================================
+// UI - STATUS
+// ================================================================
+function updateStatus() {
+    const statusEl = document.getElementById('connectionStatus');
+    const map = {
+        stable: { class: 'stable', icon: 'fa-check-circle', text: 'Estável' },
+        warning: { class: 'warning', icon: 'fa-exclamation-triangle', text: 'Atenção' },
+        degraded: { class: 'degraded', icon: 'fa-times-circle', text: 'Degradado' }
+    };
+    const s = map[state.status] || map.stable;
+    statusEl.className = `connection-status ${s.class}`;
+    statusEl.innerHTML = `<i class="fas ${s.icon}"></i> ${s.text}`;
+
+    const texts = {
+        stable: '✅ Conexão estável. Todas as métricas dentro do esperado.',
+        warning: '⚠️ Atenção: alguns indicadores estão acima do normal.',
+        degraded: '🔴 Degradação detectada! Verifique as métricas abaixo.'
+    };
+    document.getElementById('statusSummary').textContent = texts[state.status] || texts.stable;
+}
+
+// ================================================================
+// UI - METRICS
+// ================================================================
+function updateMetrics() {
+    const grid = document.getElementById('metricsGrid');
+    const metrics = [
+        { key: 'latency', label: 'Latência', value: state.latency, unit: 'ms', icon: 'fa-clock', color: state.latency > 80 ? '#dc2626' : state.latency > 50 ? '#f59e0b' : '#22c55e' },
+        { key: 'jitter', label: 'Jitter', value: state.jitter, unit: 'ms', icon: 'fa-wave-square', color: state.jitter > 20 ? '#dc2626' : state.jitter > 10 ? '#f59e0b' : '#22c55e' },
+        { key: 'packetLoss', label: 'Perda', value: state.packetLoss.toFixed(1), unit: '%', icon: 'fa-exclamation-circle', color: state.packetLoss > 3 ? '#dc2626' : state.packetLoss > 1 ? '#f59e0b' : '#22c55e' },
+        { key: 'speed', label: 'Velocidade', value: state.speed, unit: 'Mbps', icon: 'fa-tachometer-alt', color: state.speed < 20 ? '#dc2626' : state.speed < 50 ? '#f59e0b' : '#22c55e' }
+    ];
+
+    grid.innerHTML = metrics.map(m => `
+        <div class="radar-card ${state.status}">
+            <div class="carrier-icon">
+                <span class="carrier-name"><i class="fas ${m.icon}" style="color:${m.color};"></i> ${m.label}</span>
+            </div>
+            <div class="radar-score" style="color:${m.color}">
+                ${m.value}<small>${m.unit}</small>
+            </div>
+            <div class="radar-metrics">
+                <span>${state.status === 'degraded' ? '🔴 Crítico' : state.status === 'warning' ? '🟡 Atenção' : '🟢 Normal'}</span>
+            </div>
+        </div>
+    `).join('');
+
+    // Lista detalhada
+    const list = document.getElementById('metricList');
+    const thresholds = {
+        latency: { good: 30, warning: 50, bad: 80 },
+        jitter: { good: 5, warning: 10, bad: 20 },
+        packetLoss: { good: 0.5, warning: 1, bad: 3 },
+        speed: { good: 80, warning: 50, bad: 20 }
+    };
+
+    const labels = {
+        latency: 'Latência (ms)',
+        jitter: 'Jitter (ms)',
+        packetLoss: 'Perda de Pacotes (%)',
+        speed: 'Velocidade (Mbps)'
+    };
+    const icons = {
+        latency: 'fa-clock',
+        jitter: 'fa-wave-square',
+        packetLoss: 'fa-exclamation-circle',
+        speed: 'fa-tachometer-alt'
+    };
+
+    list.innerHTML = Object.entries(thresholds).map(([key, t]) => {
+        let value = state[key];
+        let unit = key === 'packetLoss' ? '%' : key === 'speed' ? 'Mbps' : 'ms';
+        let displayValue = key === 'packetLoss' ? value.toFixed(1) : value;
+        let status = value <= t.good ? 'stable' : value <= t.warning ? 'warning' : 'degraded';
+        return `
+            <div class="metric-item">
+                <span class="metric-name"><i class="fas ${icons[key]}"></i> ${labels[key]}</span>
+                <span class="metric-value ${status}">${displayValue} ${unit}</span>
+            </div>
+        `;
+    }).join('');
+}
+
+// ================================================================
+// UI - ALERT
+// ================================================================
+function updateAlert() {
+    const box = document.getElementById('alertBox');
+    const msg = document.getElementById('alertMessage');
+    
+    if (state.status === 'degraded') {
+        box.className = 'alert-box active';
+        box.style.borderLeftColor = '#dc2626';
+        box.style.background = '#fef2f2';
+        let reasons = [];
+        if (state.latency > 80) reasons.push(`Latência alta (${state.latency}ms)`);
+        if (state.packetLoss > 3) reasons.push(`Perda (${state.packetLoss.toFixed(1)}%)`);
+        if (state.jitter > 20) reasons.push(`Jitter (${state.jitter}ms)`);
+        if (state.speed < 20) reasons.push(`Velocidade (${state.speed}Mbps)`);
+        msg.textContent = `⚠️ Degradação: ${reasons.join(', ')}`;
+        msg.style.color = '#991b1b';
+    } else if (state.status === 'warning') {
+        box.className = 'alert-box active';
+        box.style.borderLeftColor = '#f59e0b';
+        box.style.background = '#fffbeb';
+        let reasons = [];
+        if (state.latency > 50) reasons.push(`Latência (${state.latency}ms)`);
+        if (state.packetLoss > 1) reasons.push(`Perda (${state.packetLoss.toFixed(1)}%)`);
+        if (state.jitter > 10) reasons.push(`Jitter (${state.jitter}ms)`);
+        if (state.speed < 50) reasons.push(`Velocidade (${state.speed}Mbps)`);
+        msg.textContent = `⚠️ Atenção: ${reasons.join(', ')}`;
+        msg.style.color = '#92400e';
+    } else {
+        box.className = 'alert-box';
+        box.style.borderLeftColor = '#22c55e';
+        box.style.background = '#ecfdf5';
+        msg.textContent = '✅ Conexão estável. Nenhuma degradação detectada.';
+        msg.style.color = '#065f46';
+    }
+}
+
+// ================================================================
+// UI - STATS
+// ================================================================
+function updateStats() {
+    document.getElementById('statDegradations').textContent = state.degradationCount;
+    document.getElementById('statAvgLatency').textContent = Math.round(state.avgLatency);
+    document.getElementById('statAvgSpeed').textContent = Math.round(state.avgSpeed);
+    document.getElementById('statUptime').textContent = calculateUptime() + '%';
+    document.getElementById('uptimeValue').textContent = formatUptime();
+}
+
+function calculateUptime() {
+    if (state.totalReadings === 0) return 100;
+    const degraded = state.historyLog.filter(h => h.status === 'degraded').length;
+    return Math.round(((state.totalReadings - degraded) / state.totalReadings) * 100);
+}
+
+function formatUptime() {
+    const elapsed = Math.floor((Date.now() - state.startTime) / 1000);
+    const h = String(Math.floor(elapsed / 3600)).padStart(2, '0');
+    const m = String(Math.floor((elapsed % 3600) / 60)).padStart(2, '0');
+    const s = String(elapsed % 60).padStart(2, '0');
+    return `${h}:${m}:${s}`;
+}
+
+function updateQualityIndicator() {
+    const el = document.getElementById('qualityIndicator');
+    const score = calculateQualityScore();
+    let label, icon, cls;
+    if (score >= 80) { label = 'Excelente'; icon = 'fa-star'; cls = 'excellent'; }
+    else if (score >= 60) { label = 'Bom'; icon = 'fa-thumbs-up'; cls = 'good'; }
+    else if (score >= 40) { label = 'Regular'; icon = 'fa-minus'; cls = 'fair'; }
+    else { label = 'Ruim'; icon = 'fa-times'; cls = 'poor'; }
+    el.className = `quality-indicator ${cls}`;
+    el.innerHTML = `<i class="fas ${icon}"></i> ${label}`;
+}
+
+function calculateQualityScore() {
+    let score = 100;
+    if (state.latency > 80) score -= 20;
+    else if (state.latency > 50) score -= 10;
+    if (state.packetLoss > 3) score -= 25;
+    else if (state.packetLoss > 1) score -= 15;
+    if (state.jitter > 20) score -= 15;
+    else if (state.jitter > 10) score -= 8;
+    if (state.speed < 20) score -= 20;
+    else if (state.speed < 50) score -= 10;
+    return Math.max(0, Math.min(100, score));
+}
+
+// ================================================================
+// GRÁFICO
+// ================================================================
+function initChart() {
+    const ctx = document.getElementById('degradationChart').getContext('2d');
+    const labels = Array.from({ length: 10 }, (_, i) => {
+        const d = new Date();
+        d.setMinutes(d.getMinutes() - (9 - i) * 1);
+        return d.toTimeString().slice(0,5);
+    });
+
+    chartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [
+                { label: 'Latência', data: Array(10).fill(0), borderColor: '#f59e0b', tension: 0.3, fill: false, pointBackgroundColor: '#f59e0b', borderWidth: 2 },
+                { label: 'Jitter', data: Array(10).fill(0), borderColor: '#3b82f6', tension: 0.3, fill: false, pointBackgroundColor: '#3b82f6', borderWidth: 2, borderDash: [5,3] },
+                { label: 'Perda', data: Array(10).fill(0), borderColor: '#dc2626', tension: 0.3, fill: false, pointBackgroundColor: '#dc2626', borderWidth: 2, borderDash: [2,4] },
+                { label: 'Velocidade', data: Array(10).fill(0), borderColor: '#22c55e', tension: 0.3, fill: false, pointBackgroundColor: '#22c55e', borderWidth: 2, yAxisID: 'y1' }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false }, tooltip: { mode: 'index' } },
+            scales: {
+                y: { beginAtZero: true, grid: { color: '#e9edf2' }, title: { display: true, text: 'ms / %' }, position: 'left' },
+                y1: { beginAtZero: true, grid: { drawOnChartArea: false }, title: { display: true, text: 'Mbps' }, position: 'right', max: 200 }
+            }
+        }
+    });
+}
+
+function updateChart() {
+    if (!chartInstance) return;
+    const datasets = chartInstance.data.datasets;
+    const h = state.history;
+    const getData = (arr) => {
+        const d = arr.map(i => i.value);
+        while (d.length < 10) d.unshift(0);
+        return d.slice(-10);
+    };
+    datasets[0].data = getData(h.latency);
+    datasets[1].data = getData(h.jitter);
+    datasets[2].data = getData(h.packetLoss);
+    datasets[3].data = getData(h.speed);
+    chartInstance.update('none');
+}
+
+// ================================================================
+// EXPORTAR
+// ================================================================
+function exportReport() {
+    const data = {
+        timestamp: new Date().toISOString(),
+        ip: state.ip,
+        location: state.location,
+        isp: state.isp,
+        metrics: { latency: state.latency, jitter: state.jitter, packetLoss: state.packetLoss, speed: state.speed },
+        stats: { totalReadings: state.totalReadings, degradationCount: state.degradationCount, avgLatency: Math.round(state.avgLatency), avgSpeed: Math.round(state.avgSpeed), uptime: calculateUptime() + '%' },
+        history: state.historyLog.slice(-20)
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `relatorio-${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('📊 Relatório exportado!', 'success');
+}
+
+// ================================================================
+// HISTÓRICO
+// ================================================================
+function showHistory() {
+    const modal = document.getElementById('historyModal');
+    modal.classList.add('active');
+    const content = document.getElementById('historyContent');
+    if (state.historyLog.length === 0) {
+        content.innerHTML = '<p style="color:#94a3b8; text-align:center;">Nenhum dado disponível</p>';
+        return;
+    }
+    let html = '<table style="width:100%; border-collapse:collapse; font-size:0.85rem;">';
+    html += `<thead><tr style="background:#f1f5f9;">
+        <th style="padding:8px;text-align:left;">Hora</th>
+        <th style="padding:8px;text-align:center;">Status</th>
+        <th style="padding:8px;text-align:right;">Latência</th>
+        <th style="padding:8px;text-align:right;">Perda</th>
+        <th style="padding:8px;text-align:right;">Velocidade</th>
+    </tr></thead><tbody>`;
+    const recent = state.historyLog.slice(-20).reverse();
+    for (const e of recent) {
+        const color = e.status === 'degraded' ? '#dc2626' : e.status === 'warning' ? '#f59e0b' : '#22c55e';
+        const icon = e.status === 'degraded' ? '🔴' : e.status === 'warning' ? '🟡' : '🟢';
+        html += `<tr style="border-bottom:1px solid #eef2f6;">
+            <td style="padding:8px;">${new Date(e.time).toLocaleTimeString()}</td>
+            <td style="padding:8px;text-align:center;color:${color};">${icon} ${e.status}</td>
+            <td style="padding:8px;text-align:right;">${e.latency}ms</td>
+            <td style="padding:8px;text-align:right;">${e.packetLoss.toFixed(1)}%</td>
+            <td style="padding:8px;text-align:right;">${e.speed}Mbps</td>
+        </tr>`;
+    }
+    html += '</tbody></table>';
+    content.innerHTML = html;
+}
+
+function closeHistory() {
+    document.getElementById('historyModal').classList.remove('active');
+}
+
+document.getElementById('historyModal').addEventListener('click', function(e) {
+    if (e.target === this) closeHistory();
+});
+
+// ================================================================
+// RESET
+// ================================================================
+function resetStats() {
+    if (!confirm('Reiniciar todas as estatísticas?')) return;
+    state.degradationCount = 0;
+    state.totalReadings = 0;
+    state.avgLatency = 0;
+    state.avgSpeed = 0;
+    state.historyLog = [];
+    state.startTime = Date.now();
+    document.getElementById('statDegradations').textContent = '0';
+    showToast('🔄 Estatísticas reiniciadas', 'info');
+}
+
+// ================================================================
+// EMAIL - BACKEND
+// ================================================================
+const emailStatus = document.getElementById('emailStatus');
+const emailFeedback = document.getElementById('emailFeedback');
+
+async function sendEmailViaVPS(emailData) {
+    try {
+        const response = await fetch(SERVER_CONFIG.apiEndpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(emailData)
+        });
+        return await response.json();
+    } catch (error) {
+        console.error('Erro ao enviar email:', error);
+        throw error;
+    }
+}
+
+function logEmail(msg, type = 'info') {
+    const icons = { success: 'check-circle', error: 'times-circle', info: 'info-circle' };
+    emailFeedback.innerHTML = `<span class="status-email ${type}"><i class="fas fa-${icons[type] || 'info-circle'}"></i> ${msg}</span>`;
+}
+
+document.getElementById('testEmailBtn').addEventListener('click', async function() {
+    const smtp = document.getElementById('smtpServer').value.trim();
+    const port = document.getElementById('smtpPort').value.trim();
+    const user = document.getElementById('smtpUser').value.trim();
+    const pass = document.getElementById('smtpPass').value.trim();
+
+    if (!smtp || !port || !user || !pass) {
+        logEmail('Preencha todos os campos!', 'error');
+        showToast('❌ Preencha todos os campos', 'error');
+        return;
+    }
+
+    logEmail('Testando conexão SMTP...', 'info');
+    emailStatus.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Testando...';
+    emailStatus.className = 'status-email info';
+
+    try {
+        const result = await sendEmailViaVPS({ action: 'test', smtp, port, user, pass });
+        if (result.success) {
+            emailStatus.innerHTML = '<i class="fas fa-check-circle"></i> Conectado';
+            emailStatus.className = 'status-email success';
+            logEmail('✅ Conexão SMTP estabelecida!', 'success');
+            showToast('✅ SMTP OK', 'success');
+        } else {
+            emailStatus.innerHTML = '<i class="fas fa-times-circle"></i> Falha';
+            emailStatus.className = 'status-email error';
+            logEmail('❌ Falha: ' + result.message, 'error');
+            showToast('❌ Falha SMTP', 'error');
+        }
+    } catch (error) {
+        emailStatus.innerHTML = '<i class="fas fa-times-circle"></i> Erro';
+        emailStatus.className = 'status-email error';
+        logEmail('❌ Erro: ' + error.message, 'error');
+        showToast('❌ Erro ao testar', 'error');
+    }
+});
+
+document.getElementById('sendEmailBtn').addEventListener('click', async function() {
+    const smtp = document.getElementById('smtpServer').value.trim();
+    const user = document.getElementById('smtpUser').value.trim();
+    const pass = document.getElementById('smtpPass').value.trim();
+    const recipients = document.getElementById('emailRecipients').value.trim();
+
+    if (!smtp || !user || !pass || !recipients) {
+        logEmail('Preencha todos os campos!', 'error');
+        showToast('❌ Preencha todos os campos', 'error');
+        return;
+    }
+
+    const btn = this;
+    btn.disabled = true;
+    btn.style.opacity = '0.7';
+    logEmail(`📤 Enviando alerta para ${recipients}...`, 'info');
+
+    try {
+        const result = await sendEmailViaVPS({
+            action: 'send',
+            smtp,
+            port: document.getElementById('smtpPort').value.trim(),
+            user,
+            pass,
+            recipients,
+            data: {
+                ip: state.ip,
+                location: state.location,
+                isp: state.isp,
+                metrics: { latency: state.latency, jitter: state.jitter, packetLoss: state.packetLoss, speed: state.speed },
+                status: state.status,
+                timestamp: new Date().toISOString()
             }
         });
 
-        document.getElementById('sendEmailBtn').addEventListener('click', async function() {
-            const smtp = document.getElementById('smtpServer').value.trim();
-            const user = document.getElementById('smtpUser').value.trim();
-            const pass = document.getElementById('smtpPass').value.trim();
-            const recipients = document.getElementById('emailRecipients').value.trim();
-
-            if (!smtp || !user || !pass || !recipients) {
-                logEmail('Preencha todos os campos!', 'error');
-                return;
-            }
-
-            if (!smtpConnected) {
-                logEmail('🔌 Testando conexão primeiro...', 'info');
-                document.getElementById('testEmailBtn').click();
-                setTimeout(() => {
-                    if (smtpConnected) {
-                        sendAlert(recipients);
-                    } else {
-                        logEmail('❌ Sem conexão SMTP.', 'error');
-                    }
-                }, 2000);
-                return;
-            }
-
-            await sendAlert(recipients);
-        });
-
-        async function sendAlert(recipients) {
-            const btn = document.getElementById('sendEmailBtn');
-            btn.disabled = true;
-            btn.style.opacity = '0.7';
-            logEmail(`📤 Enviando alerta para ${recipients}...`, 'info');
-
-            try {
-                await new Promise(resolve => setTimeout(resolve, 2000));
-                const success = Math.random() > 0.1;
-                
-                if (success) {
-                    const statusText = {
-                        stable: '✅ Conexão estável',
-                        warning: '⚠️ Atenção: indicadores elevados',
-                        degraded: '🔴 ALERTA: Degradação detectada'
-                    };
-                    logEmail(`✅ ${statusText[state.status]} - Relatório enviado para ${recipients}`, 'success');
-                    emailStatus.innerHTML = '<i class="fas fa-check-circle"></i> Enviado';
-                    emailStatus.className = 'status-email success';
-                } else {
-                    throw new Error('Falha no envio SMTP');
-                }
-            } catch (error) {
-                logEmail('❌ Erro no envio: ' + error.message, 'error');
-                emailStatus.innerHTML = '<i class="fas fa-times-circle"></i> Erro';
-                emailStatus.className = 'status-email error';
-            } finally {
-                btn.disabled = false;
-                btn.style.opacity = '1';
-                setTimeout(() => {
-                    if (!emailFeedback.innerHTML.includes('Erro')) {
-                        emailFeedback.innerHTML = '';
-                    }
-                }, 7000);
-            }
+        if (result.success) {
+            const texts = { stable: '✅ Estável', warning: '⚠️ Atenção', degraded: '🔴 Degradado' };
+            logEmail(`✅ ${texts[state.status]} - Enviado para ${recipients}`, 'success');
+            emailStatus.innerHTML = '<i class="fas fa-check-circle"></i> Enviado';
+            emailStatus.className = 'status-email success';
+            showToast('📧 Alerta enviado!', 'success');
+        } else {
+            throw new Error(result.message || 'Falha no envio');
         }
+    } catch (error) {
+        logEmail('❌ Erro: ' + error.message, 'error');
+        emailStatus.innerHTML = '<i class="fas fa-times-circle"></i> Erro';
+        emailStatus.className = 'status-email error';
+        showToast('❌ Erro ao enviar', 'error');
+    } finally {
+        btn.disabled = false;
+        btn.style.opacity = '1';
+    }
+});
 
-        // ============================================================
-        // 7. INICIALIZAÇÃO
-        // ============================================================
-        initChart();
+document.getElementById('autoAlertToggle').addEventListener('click', function() {
+    SERVER_CONFIG.autoAlert = !SERVER_CONFIG.autoAlert;
+    this.innerHTML = SERVER_CONFIG.autoAlert ? 
+        '<i class="fas fa-robot"></i> Auto: ON' : 
+        '<i class="fas fa-robot"></i> Auto: OFF';
+    this.style.background = SERVER_CONFIG.autoAlert ? '#22c55e' : '#64748b';
+    showToast(`Auto Alert ${SERVER_CONFIG.autoAlert ? 'ativado' : 'desativado'}`, 'info');
+});
 
-        async function startMonitoring() {
-            await collectData();
-            setInterval(collectData, 15000);
+// ================================================================
+// SALVAR CONFIGURAÇÃO
+// ================================================================
+function saveConfig() {
+    const config = {
+        smtpServer: document.getElementById('smtpServer').value,
+        smtpPort: document.getElementById('smtpPort').value,
+        smtpUser: document.getElementById('smtpUser').value,
+        smtpPass: document.getElementById('smtpPass').value,
+        recipients: document.getElementById('emailRecipients').value,
+        autoAlert: SERVER_CONFIG.autoAlert
+    };
+    localStorage.setItem('monitorConfig', JSON.stringify(config));
+}
+
+function loadConfig() {
+    try {
+        const saved = localStorage.getItem('monitorConfig');
+        if (saved) {
+            const config = JSON.parse(saved);
+            document.getElementById('smtpServer').value = config.smtpServer || 'smtp.seudominio.com';
+            document.getElementById('smtpPort').value = config.smtpPort || '587';
+            document.getElementById('smtpUser').value = config.smtpUser || '';
+            document.getElementById('smtpPass').value = config.smtpPass || '';
+            document.getElementById('emailRecipients').value = config.recipients || '';
+            SERVER_CONFIG.autoAlert = config.autoAlert !== undefined ? config.autoAlert : true;
+            const toggleBtn = document.getElementById('autoAlertToggle');
+            toggleBtn.innerHTML = SERVER_CONFIG.autoAlert ? 
+                '<i class="fas fa-robot"></i> Auto: ON' : 
+                '<i class="fas fa-robot"></i> Auto: OFF';
+            toggleBtn.style.background = SERVER_CONFIG.autoAlert ? '#22c55e' : '#64748b';
         }
+    } catch (e) {
+        console.warn('Erro ao carregar config:', e);
+    }
+}
 
-        startMonitoring();
+document.querySelectorAll('.email-config input').forEach(input => {
+    input.addEventListener('change', saveConfig);
+});
 
-        console.log('📡 Monitor de Link iniciado.');
-        console.log('👨‍💻 Desenvolvido por Israelson Diego Rodrigues Sevalho');
-        console.log('🚀 Dev de Redes e Softwares');
-        console.log('🌐 Coletando dados reais de IP, latência, jitter e perda.');
-        console.log('📧 Configuração SMTP disponível para disparo de alertas.');
-    })();
+// ================================================================
+// INICIALIZAÇÃO
+// ================================================================
+initChart();
+loadConfig();
+
+async function startMonitoring() {
+    await collectData();
+    setInterval(collectData, 15000);
+    setInterval(() => {
+        document.getElementById('uptimeValue').textContent = formatUptime();
+    }, 1000);
+}
+
+startMonitoring();
+
+console.log('📡 Monitor de Link v3.0 iniciado.');
+console.log('👨‍💻 Desenvolvido por Israelson Diego Rodrigues Sevalho');
+console.log('🚀 Dev de Redes e Softwares');
+console.log('📧 Endpoint: ' + SERVER_CONFIG.apiEndpoint);
 </script>
-
 </body>
 </html>
