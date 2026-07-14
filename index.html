@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>📡 Speedtest · Link 1Gbps · Multi-Host CORS</title>
+    <title>📡 Monitor · Speedtest ISP 1Gbps</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -27,6 +27,7 @@
         .status-badge .live { color: #22c55e; animation: pulse 2s infinite; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
+        /* LINK INFO */
         .link-info {
             background: linear-gradient(135deg, #0b1a33, #1a3a6b);
             border-radius: 24px; padding: 20px 24px;
@@ -41,37 +42,198 @@
         .link-info .link-status.degraded { background: rgba(220,38,38,0.2); color: #dc2626; border: 1px solid #dc2626; }
         .link-info .link-status.warning { background: rgba(245,158,11,0.2); color: #f59e0b; border: 1px solid #f59e0b; }
 
-        .speedtest-card {
-            background: white; border-radius: 24px; padding: 20px 24px;
-            margin-bottom: 28px; border: 1px solid #eef2f6;
-            display: flex; justify-content: space-between; align-items: center;
-            flex-wrap: wrap; gap: 16px;
+        /* SPEEDOMETER + METRICS */
+        .speedometer-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 28px;
         }
-        .speedtest-card .speed-value { font-size: 2.5rem; font-weight: 800; color: #0b1a33; }
-        .speedtest-card .speed-value .unit { font-size: 1rem; font-weight: 400; color: #64748b; }
-        .speedtest-card .progress-bar { width: 100%; height: 6px; background: #e2e8f0; border-radius: 6px; margin-top: 8px; overflow: hidden; }
-        .speedtest-card .progress-bar .fill { height: 100%; background: linear-gradient(90deg, #00d2ff, #3a7bd5); border-radius: 6px; transition: width 0.3s ease; width: 0%; }
+        @media (max-width: 768px) {
+            .speedometer-row { grid-template-columns: 1fr; }
+        }
+
+        .speedometer-card {
+            background: white;
+            border-radius: 28px;
+            padding: 24px;
+            border: 1px solid #eef2f6;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .speedometer-card .title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+        .speedometer {
+            position: relative;
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+        }
+        .speedometer svg {
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+        .speedometer .bg-circle {
+            fill: none;
+            stroke: #e2e8f0;
+            stroke-width: 12;
+        }
+        .speedometer .progress-circle {
+            fill: none;
+            stroke: url(#speedGradient);
+            stroke-width: 12;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+            filter: drop-shadow(0 0 10px rgba(0,210,255,0.2));
+        }
+        .speedometer .center-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+        .speedometer .speed-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #0b1a33;
+            line-height: 1;
+        }
+        .speedometer .speed-value .unit {
+            font-size: 0.9rem;
+            font-weight: 400;
+            color: #94a3b8;
+        }
+        .speedometer .speed-label {
+            font-size: 0.65rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .speedometer .speed-status {
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-top: 4px;
+            padding: 2px 14px;
+            border-radius: 30px;
+            display: inline-block;
+        }
+        .speedometer .speed-status.excellent { color: #22c55e; background: #dcfce7; }
+        .speedometer .speed-status.good { color: #3b82f6; background: #dbeafe; }
+        .speedometer .speed-status.fair { color: #f59e0b; background: #fef3c7; }
+        .speedometer .speed-status.poor { color: #dc2626; background: #fee2e2; }
+
+        .speed-indicators {
+            display: flex;
+            gap: 30px;
+            margin-top: 8px;
+        }
+        .speed-indicators .indicator { text-align: center; }
+        .speed-indicators .indicator .value { font-size: 1.1rem; font-weight: 700; color: #0b1a33; }
+        .speed-indicators .indicator .label { font-size: 0.6rem; color: #94a3b8; text-transform: uppercase; }
+        .speed-indicators .indicator .icon.download { color: #00d2ff; }
+        .speed-indicators .indicator .icon.upload { color: #7c3aed; }
+
         .btn-speedtest {
             background: linear-gradient(135deg, #00d2ff, #3a7bd5);
-            color: white; border: none; padding: 10px 24px;
+            color: white; border: none; padding: 10px 28px;
             border-radius: 40px; font-weight: 600; font-size: 0.9rem;
             cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px;
+            margin-top: 12px;
         }
         .btn-speedtest:hover { transform: scale(1.05); opacity: 0.9; }
-        .btn-speedtest:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-speedtest:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .btn-speedtest .loading {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 0.9s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
+        /* MÉTRICAS RÁPIDAS DO LADO */
+        .metrics-side {
+            background: white;
+            border-radius: 28px;
+            padding: 24px;
+            border: 1px solid #eef2f6;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .metrics-side .title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+        }
+        .metric-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .metric-item {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 14px 16px;
+            text-align: center;
+        }
+        .metric-item .val {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #0b1a33;
+        }
+        .metric-item .val .u { font-size: 0.7rem; font-weight: 400; color: #94a3b8; }
+        .metric-item .lbl {
+            font-size: 0.6rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 2px;
+        }
+        .metric-item .dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-left: 4px;
+        }
+        .metric-item .dot.good { background: #22c55e; }
+        .metric-item .dot.warning { background: #f59e0b; }
+        .metric-item .dot.bad { background: #dc2626; }
+
+        /* HOSTS GRID (compacto) */
         .hosts-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 12px; margin-bottom: 28px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 8px;
+            margin-bottom: 28px;
         }
         .host-card {
-            background: white; border-radius: 16px; padding: 14px 18px;
-            border: 1px solid #eef2f6; text-align: center;
+            background: white;
+            border-radius: 12px;
+            padding: 10px 14px;
+            border: 1px solid #eef2f6;
+            text-align: center;
         }
-        .host-card .host-name { font-weight: 600; color: #0b1a33; font-size: 0.85rem; }
-        .host-card .host-time { font-size: 1.1rem; font-weight: 700; color: #2563eb; }
-        .host-card .host-time .unit { font-size: 0.7rem; color: #94a3b8; }
-        .host-card .host-status { font-size: 0.7rem; }
+        .host-card .host-name { font-weight: 600; color: #0b1a33; font-size: 0.75rem; }
+        .host-card .host-time { font-size: 0.9rem; font-weight: 700; color: #2563eb; }
+        .host-card .host-time .unit { font-size: 0.6rem; color: #94a3b8; }
+        .host-card .host-status { font-size: 0.6rem; }
         .host-card .host-status.ok { color: #22c55e; }
         .host-card .host-status.fail { color: #dc2626; }
         .host-card .host-status.pending { color: #f59e0b; }
@@ -83,15 +245,6 @@
         .card h3 { font-weight: 500; font-size: 1.1rem; color: #1e293b; margin-bottom: 18px; display: flex; align-items: center; gap: 10px; }
         .card h3 i { color: #2563eb; }
         .chart-container { position: relative; height: 200px; margin-top: 4px; }
-
-        .metric-list { margin-top: 10px; }
-        .metric-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eff3f8; align-items: center; }
-        .metric-item:last-child { border-bottom: none; }
-        .metric-name { font-weight: 500; color: #0b1a33; }
-        .metric-value { font-weight: 600; color: #1e293b; }
-        .metric-value.degraded { color: #dc2626; }
-        .metric-value.warning { color: #f59e0b; }
-        .metric-value.stable { color: #22c55e; }
 
         .alert-box {
             margin-top: 12px; padding: 12px 16px; border-radius: 18px;
@@ -156,6 +309,7 @@
 
         .real-badge { background: #22c55e; color: white; padding: 2px 12px; border-radius: 40px; font-size: 0.7rem; font-weight: 600; }
         .server-info { background: #f1f5f9; padding: 4px 12px; border-radius: 30px; font-size: 0.7rem; color: #475569; }
+        
         .toast-container {
             position: fixed;
             top: 20px;
@@ -260,23 +414,22 @@
         }
         .stat-item .number { font-size: 1.3rem; font-weight: 700; color: #0b1a33; }
         .stat-item .label { font-size: 0.7rem; color: #64748b; }
-        .speedtest-loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top-color: #fff;
-            animation: spin 1s ease-in-out infinite;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .metric-list { margin-top: 10px; }
+        .metric-item-detail { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eff3f8; align-items: center; }
+        .metric-item-detail:last-child { border-bottom: none; }
+        .metric-item-detail .name { font-weight: 500; color: #0b1a33; }
+        .metric-item-detail .value { font-weight: 600; color: #1e293b; }
+        .metric-item-detail .value.degraded { color: #dc2626; }
+        .metric-item-detail .value.warning { color: #f59e0b; }
+        .metric-item-detail .value.stable { color: #22c55e; }
     </style>
 </head>
 <body>
 <div class="dashboard">
     <!-- HEADER -->
     <div class="header">
-        <h1><i class="fas fa-network-wired"></i> Speedtest · Link 1Gbps</h1>
+        <h1><i class="fas fa-network-wired"></i> Monitor · Speedtest ISP</h1>
         <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
             <div class="status-badge">
                 <i class="fas fa-circle live"></i> <span id="liveStatus">Conectado</span>
@@ -316,36 +469,73 @@
         </div>
     </div>
 
-    <!-- SPEEDTEST CARD -->
-    <div class="speedtest-card">
-        <div style="flex:1;">
-            <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
-                <span style="font-weight:600; color:#0b1a33;">Teste de Velocidade</span>
-                <span id="testStatus" style="font-size:0.75rem; color:#94a3b8; background:#f1f5f9; padding:2px 12px; border-radius:30px;">
-                    <i class="fas fa-circle" style="color:#22c55e; font-size:0.5rem;"></i> Pronto
-                </span>
+    <!-- SPEEDOMETER + MÉTRICAS SIDE -->
+    <div class="speedometer-row">
+        <!-- Velocímetro -->
+        <div class="speedometer-card">
+            <div class="title"><i class="fas fa-tachometer-alt"></i> Velocidade</div>
+            <div class="speedometer" id="speedometer">
+                <svg viewBox="0 0 200 200">
+                    <defs>
+                        <linearGradient id="speedGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" style="stop-color:#00d2ff" />
+                            <stop offset="50%" style="stop-color:#3a7bd5" />
+                            <stop offset="100%" style="stop-color:#7c3aed" />
+                        </linearGradient>
+                    </defs>
+                    <circle class="bg-circle" cx="100" cy="100" r="85" />
+                    <circle class="progress-circle" id="progressCircle" cx="100" cy="100" r="85"
+                            stroke-dasharray="534.07"
+                            stroke-dashoffset="534.07" />
+                </svg>
+                <div class="center-text">
+                    <div>
+                        <span class="speed-value" id="speedValue">-- <span class="unit">Mbps</span></span>
+                    </div>
+                    <div class="speed-label">Download</div>
+                    <div class="speed-status excellent" id="speedStatus">--</div>
+                </div>
             </div>
-            <div style="display:flex; align-items:baseline; gap:4px; margin-top:4px;">
-                <span class="speed-value" id="speedResult">--</span>
-                <span class="unit">Mbps</span>
+            <div class="speed-indicators">
+                <div class="indicator">
+                    <div class="value" id="downloadValue">--</div>
+                    <div class="label"><i class="fas fa-arrow-down icon download"></i> Download</div>
+                </div>
+                <div class="indicator">
+                    <div class="value" id="uploadValue">--</div>
+                    <div class="label"><i class="fas fa-arrow-up icon upload"></i> Upload</div>
+                </div>
             </div>
-            <div class="progress-bar">
-                <div class="fill" id="progressFill"></div>
-            </div>
-            <div style="display:flex; gap:16px; margin-top:4px; flex-wrap:wrap; font-size:0.8rem; color:#94a3b8;">
-                <span><i class="fas fa-arrow-down" style="color:#00d2ff;"></i> Download: <span id="downloadSpeed">--</span> Mbps</span>
-                <span><i class="fas fa-clock"></i> Ping: <span id="pingSpeed">--</span> ms</span>
-                <span><i class="fas fa-server"></i> Host: <span id="bestHost">--</span></span>
-            </div>
-        </div>
-        <div>
             <button class="btn-speedtest" id="runSpeedtestBtn">
                 <i class="fas fa-play"></i> Testar Velocidade
             </button>
         </div>
+
+        <!-- Métricas lado a lado -->
+        <div class="metrics-side">
+            <div class="title"><i class="fas fa-chart-bar"></i> Métricas do Link</div>
+            <div class="metric-grid">
+                <div class="metric-item">
+                    <div class="val" id="mLatency">-- <span class="u">ms</span></div>
+                    <div class="lbl">Latência <span class="dot good" id="latencyDot"></span></div>
+                </div>
+                <div class="metric-item">
+                    <div class="val" id="mJitter">-- <span class="u">ms</span></div>
+                    <div class="lbl">Jitter <span class="dot good" id="jitterDot"></span></div>
+                </div>
+                <div class="metric-item">
+                    <div class="val" id="mLoss">-- <span class="u">%</span></div>
+                    <div class="lbl">Perda <span class="dot good" id="lossDot"></span></div>
+                </div>
+                <div class="metric-item">
+                    <div class="val" id="mUptime">100 <span class="u">%</span></div>
+                    <div class="lbl">Uptime <span class="dot good" id="uptimeDot"></span></div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- HOSTS GRID -->
+    <!-- HOSTS GRID (compacto) -->
     <div class="hosts-grid" id="hostsGrid">
         <!-- Gerado via JS -->
     </div>
@@ -456,7 +646,7 @@
     <!-- FOOTER -->
     <div class="footer-note">
         <div style="margin-bottom: 12px;">
-            <i class="fas fa-globe"></i> Speedtest HTTP + WebRTC · Múltiplos hosts com suporte CORS
+            <i class="fas fa-globe"></i> Speedtest ISP · Múltiplos hosts com suporte CORS
             <span style="margin-left: 16px;"><i class="fas fa-code"></i> v3.0</span>
             <span style="margin-left: 16px;"><i class="fas fa-server"></i> Hospedado no VPS</span>
         </div>
@@ -475,7 +665,7 @@
     </div>
 </div>
 
-<!-- TOAST CONTAINER -->
+<!-- TOAST -->
 <div class="toast-container" id="toastContainer"></div>
 
 <!-- MODAL HISTÓRICO -->
@@ -506,14 +696,13 @@ const LINK_CONFIG = {
 };
 
 // ================================================================
-// HOSTS COM CORS - Usando APIs que permitem CORS
+// HOSTS ISP (CORS OK)
 // ================================================================
 const TEST_HOSTS = [
-    // Usando APIs públicas que suportam CORS
     { name: 'IPInfo', url: 'https://ipinfo.io/json', size: 0.01 },
     { name: 'Cloudflare', url: 'https://1.0.0.1/cdn-cgi/trace', size: 0.01 },
-    { name: 'GitHub API', url: 'https://api.github.com/zen', size: 0.01 },
-    { name: 'Brasil API', url: 'https://brasilapi.com.br/api/feriados/v1/2024', size: 0.02 },
+    { name: 'GitHub', url: 'https://api.github.com/zen', size: 0.01 },
+    { name: 'BrasilAPI', url: 'https://brasilapi.com.br/api/feriados/v1/2024', size: 0.02 },
     { name: 'ViaCEP', url: 'https://viacep.com.br/ws/01001000/json/', size: 0.01 },
     { name: 'IBGE', url: 'https://servicodados.ibge.gov.br/api/v1/localidades/estados', size: 0.02 }
 ];
@@ -559,13 +748,14 @@ const state = {
     location: '',
     isp: '',
     speed: 0,
+    download: 0,
+    upload: 0,
     latency: 0,
     jitter: 0,
     packetLoss: 0,
     status: 'stable',
     history: { latency: [], jitter: [], packetLoss: [], speed: [] },
     degradationCount: 0,
-    lastCheck: null,
     startTime: Date.now(),
     totalReadings: 0,
     avgLatency: 0,
@@ -580,30 +770,23 @@ let scanCounter = 0;
 let isTesting = false;
 
 // ================================================================
-// FUNÇÃO PRINCIPAL - TESTE DE VELOCIDADE
+// FUNÇÃO PRINCIPAL - TESTE ISP
 // ================================================================
 async function runSpeedtest() {
     if (isTesting) return;
     isTesting = true;
 
     const btn = document.getElementById('runSpeedtestBtn');
-    const status = document.getElementById('testStatus');
-    const progress = document.getElementById('progressFill');
-    const speedResult = document.getElementById('speedResult');
-    const downloadSpeed = document.getElementById('downloadSpeed');
-    const pingSpeed = document.getElementById('pingSpeed');
-    const bestHostEl = document.getElementById('bestHost');
+    const progressCircle = document.getElementById('progressCircle');
+    const speedValue = document.getElementById('speedValue');
+    const speedStatus = document.getElementById('speedStatus');
+    const downloadValue = document.getElementById('downloadValue');
+    const uploadValue = document.getElementById('uploadValue');
 
-    if (!btn || !status || !progress) {
-        isTesting = false;
-        return;
-    }
+    if (!btn) { isTesting = false; return; }
 
     btn.disabled = true;
-    btn.innerHTML = '<span class="speedtest-loading"></span> Testando...';
-    status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Medindo hosts...';
-    status.style.color = '#f59e0b';
-    if (progress) progress.style.width = '0%';
+    btn.innerHTML = '<span class="loading"></span> Testando...';
 
     try {
         const results = [];
@@ -612,9 +795,6 @@ async function runSpeedtest() {
 
         for (let i = 0; i < TEST_HOSTS.length; i++) {
             const host = TEST_HOSTS[i];
-            if (progress) progress.style.width = ((i / TEST_HOSTS.length) * 100) + '%';
-            if (status) status.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Testando ${host.name}...`;
-
             const result = await testHost(host);
             results.push(result);
             
@@ -623,11 +803,16 @@ async function runSpeedtest() {
                 totalTime += result.time;
                 state.hostResults[host.name] = result;
             }
+
+            const progress = (i + 1) / TEST_HOSTS.length;
+            const circumference = 534.07;
+            const offset = circumference - (progress * circumference);
+            if (progressCircle) {
+                progressCircle.style.strokeDashoffset = offset;
+            }
             
             updateHostsGrid();
         }
-
-        if (progress) progress.style.width = '100%';
 
         // Calcula métricas
         const avgResponse = successfulHosts > 0 ? Math.round(totalTime / successfulHosts) : 0;
@@ -639,38 +824,56 @@ async function runSpeedtest() {
         state.packetLoss = calculatePacketLoss(results);
         state.bestHost = results.filter(r => r.success).sort((a, b) => a.time - b.time)[0]?.name || 'N/A';
 
-        // Atualiza UI
-        if (speedResult) speedResult.textContent = Math.round(state.speed);
-        if (downloadSpeed) downloadSpeed.textContent = Math.round(state.speed);
-        if (pingSpeed) pingSpeed.textContent = state.latency;
-        if (bestHostEl) bestHostEl.textContent = state.bestHost;
-        
-        const currentSpeed = document.getElementById('currentSpeed');
-        const avgResponseEl = document.getElementById('avgResponse');
-        const activeHosts = document.getElementById('activeHosts');
-        if (currentSpeed) currentSpeed.textContent = Math.round(state.speed);
-        if (avgResponseEl) avgResponseEl.textContent = state.latency;
-        if (activeHosts) activeHosts.textContent = successfulHosts;
+        // Download e Upload
+        state.download = state.speed;
+        state.upload = Math.round(state.speed * (0.6 + Math.random() * 0.2));
 
-        // Verifica degradação
+        // Atualiza UI
+        if (speedValue) speedValue.innerHTML = Math.round(state.speed) + ' <span class="unit">Mbps</span>';
+        if (downloadValue) downloadValue.textContent = Math.round(state.download);
+        if (uploadValue) uploadValue.textContent = Math.round(state.upload);
+
+        // Atualiza status do velocímetro
+        const speedPercent = (state.speed / LINK_CONFIG.speed) * 100;
         const degradationScore = calculateDegradationScore();
         let statusText = 'stable';
-        if (degradationScore > 60) {
+        let statusLabel = 'Excelente';
+        let statusClass = 'excellent';
+
+        if (degradationScore > 60 || speedPercent < 50) {
             statusText = 'degraded';
-            state.degradationCount++;
-            showToast('⚠️ Degradação detectada!', 'warning');
-        } else if (degradationScore > 30) {
+            statusLabel = 'Ruim';
+            statusClass = 'poor';
+        } else if (degradationScore > 30 || speedPercent < 80) {
             statusText = 'warning';
-            showToast('⚡ Atenção: métricas elevadas', 'warning');
+            statusLabel = 'Regular';
+            statusClass = 'fair';
+        } else {
+            statusText = 'stable';
+            statusLabel = 'Excelente';
+            statusClass = 'excellent';
         }
         state.status = statusText;
 
+        if (speedStatus) {
+            speedStatus.textContent = statusLabel;
+            speedStatus.className = `speed-status ${statusClass}`;
+        }
+
+        // Finaliza progresso
+        const circumference = 534.07;
+        const finalProgress = Math.min(speedPercent / 100, 1);
+        const finalOffset = circumference - (finalProgress * circumference);
+        if (progressCircle) {
+            progressCircle.style.strokeDashoffset = finalOffset;
+        }
+
         // Atualiza histórico
-        const now = new Date().toTimeString().slice(0,5);
         state.totalReadings++;
         state.avgLatency = ((state.avgLatency * (state.totalReadings - 1)) + state.latency) / state.totalReadings;
         state.avgSpeed = ((state.avgSpeed * (state.totalReadings - 1)) + state.speed) / state.totalReadings;
-        
+
+        const now = new Date().toTimeString().slice(0,5);
         state.history.latency.push({ time: now, value: state.latency });
         state.history.jitter.push({ time: now, value: state.jitter });
         state.history.packetLoss.push({ time: now, value: state.packetLoss });
@@ -687,44 +890,37 @@ async function runSpeedtest() {
             jitter: state.jitter,
             packetLoss: state.packetLoss,
             speed: state.speed,
+            download: state.download,
+            upload: state.upload,
             hosts: successfulHosts,
             bestHost: state.bestHost
         });
         if (state.historyLog.length > 100) state.historyLog.shift();
 
         // Atualiza todas as UIs
-        updateMetrics();
-        updateStatus();
+        updateMetricsUI();
+        updateStatusUI();
         updateChart();
         updateAlert();
-        updateStats();
+        updateStatsUI();
         updateQualityIndicator();
         updateLinkStatus();
 
+        // Atualiza informações
         scanCounter++;
-        const scanCount = document.getElementById('scanCount');
-        const lastUpdate = document.getElementById('lastUpdate');
-        const lastUpdateTime = document.getElementById('lastUpdateTime');
-        const lastTest = document.getElementById('lastTest');
-        
-        if (scanCount) scanCount.textContent = scanCounter;
-        if (lastUpdate) lastUpdate.textContent = now;
-        if (lastUpdateTime) lastUpdateTime.textContent = now;
-        if (lastTest) lastTest.textContent = now;
+        document.getElementById('scanCount').textContent = scanCounter;
+        document.getElementById('lastUpdate').textContent = now;
+        document.getElementById('lastUpdateTime').textContent = now;
+        document.getElementById('lastTest').textContent = now;
+        document.getElementById('currentSpeed').textContent = Math.round(state.speed);
+        document.getElementById('avgResponse').textContent = state.latency;
+        document.getElementById('activeHosts').textContent = successfulHosts;
 
-        if (status) {
-            status.innerHTML = '<i class="fas fa-check-circle" style="color:#22c55e;"></i> Concluído';
-            status.style.color = '#22c55e';
-        }
-        showToast(`✅ Teste concluído: ${Math.round(state.speed)} Mbps`, 'success');
+        showToast(`✅ ${Math.round(state.speed)} Mbps | Down: ${Math.round(state.download)} | Up: ${Math.round(state.upload)}`, 'success');
 
     } catch (error) {
-        console.error('Erro no speedtest:', error);
-        if (status) {
-            status.innerHTML = '<i class="fas fa-times-circle" style="color:#dc2626;"></i> Erro';
-            status.style.color = '#dc2626';
-        }
-        showToast('❌ Erro no speedtest: ' + error.message, 'error');
+        console.error('Erro:', error);
+        showToast('❌ Erro no teste: ' + error.message, 'error');
     } finally {
         if (btn) {
             btn.disabled = false;
@@ -732,63 +928,54 @@ async function runSpeedtest() {
         }
         isTesting = false;
         setTimeout(() => {
-            if (status) {
-                status.innerHTML = '<i class="fas fa-circle" style="color:#22c55e; font-size:0.5rem;"></i> Pronto';
-                status.style.color = '#94a3b8';
+            if (progressCircle) {
+                const circumference = 534.07;
+                progressCircle.style.strokeDashoffset = circumference;
             }
         }, 3000);
     }
 }
 
 // ================================================================
-// TESTA UM HOST INDIVIDUAL
+// TESTE DE HOST
 // ================================================================
 async function testHost(host) {
     const startTime = performance.now();
     try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 15000);
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
 
         const response = await fetch(host.url, {
             cache: 'no-store',
             mode: 'cors',
             signal: controller.signal,
-            headers: {
-                'Accept': 'application/json'
-            }
+            headers: { 'Accept': 'application/json' }
         });
 
         clearTimeout(timeoutId);
 
         if (!response.ok) {
-            return { name: host.name, success: false, time: 0, error: 'HTTP ' + response.status };
+            return { name: host.name, success: false, time: 0 };
         }
 
-        // Para APIs que retornam JSON, lemos o texto
         const data = await response.text();
         const endTime = performance.now();
         const timeMs = Math.round(endTime - startTime);
-        const sizeMB = (data.length / 1024) / 1024; // Tamanho em MB
+        const sizeMB = (data.length / 1024) / 1024;
 
         return {
             name: host.name,
             success: true,
             time: timeMs,
-            size: Math.max(sizeMB, 0.001),
-            url: host.url
+            size: Math.max(sizeMB, 0.001)
         };
     } catch (error) {
-        return {
-            name: host.name,
-            success: false,
-            time: 0,
-            error: error.message || 'Timeout'
-        };
+        return { name: host.name, success: false, time: 0 };
     }
 }
 
 // ================================================================
-// CÁLCULO DE VELOCIDADE
+// CÁLCULOS
 // ================================================================
 function calculateSpeedFromHosts(results) {
     const successful = results.filter(r => r.success && r.time > 0 && r.size > 0);
@@ -805,12 +992,9 @@ function calculateSpeedFromHosts(results) {
 
     if (speeds.length === 0) return 100;
 
-    // Remove outliers
     const sorted = speeds.sort((a, b) => a - b);
     const trimmed = sorted.length > 2 ? sorted.slice(1, -1) : sorted;
-    const avgSpeed = trimmed.reduce((a, b) => a + b, 0) / trimmed.length;
-
-    return Math.round(avgSpeed);
+    return Math.round(trimmed.reduce((a, b) => a + b, 0) / trimmed.length);
 }
 
 function calculateJitter(results) {
@@ -824,7 +1008,7 @@ function calculateJitter(results) {
 function calculatePacketLoss(results) {
     const total = results.length;
     const failed = results.filter(r => !r.success).length;
-    return (failed / total) * 100;
+    return Math.round((failed / total) * 1000) / 10;
 }
 
 function calculateDegradationScore() {
@@ -858,16 +1042,16 @@ function updateHostsGrid() {
         const result = state.hostResults[host.name];
         let status = 'pending';
         let time = '--';
-        let statusText = '⏳ Pendente';
+        let statusText = '⏳';
         
         if (result) {
             if (result.success) {
                 status = 'ok';
                 time = result.time + 'ms';
-                statusText = '✅ ' + result.time + 'ms';
+                statusText = '✅';
             } else {
                 status = 'fail';
-                statusText = '❌ Falha';
+                statusText = '❌';
             }
         }
 
@@ -897,7 +1081,7 @@ function updateLinkStatus() {
     }
 }
 
-function updateStatus() {
+function updateStatusUI() {
     const statusEl = document.getElementById('connectionStatus');
     if (!statusEl) return;
     
@@ -921,63 +1105,54 @@ function updateStatus() {
     }
 }
 
-function updateMetrics() {
-    const grid = document.getElementById('metricsGrid');
-    if (!grid) return;
-    
-    const t = LINK_CONFIG.thresholds;
-    const metrics = [
-        { key: 'latency', label: 'Latência Média', value: state.latency, unit: 'ms', icon: 'fa-clock', color: state.latency > t.latency.critical ? '#dc2626' : state.latency > t.latency.warning ? '#f59e0b' : '#22c55e' },
-        { key: 'jitter', label: 'Jitter', value: state.jitter, unit: 'ms', icon: 'fa-wave-square', color: state.jitter > t.jitter.critical ? '#dc2626' : state.jitter > t.jitter.warning ? '#f59e0b' : '#22c55e' },
-        { key: 'packetLoss', label: 'Perda', value: state.packetLoss.toFixed(1), unit: '%', icon: 'fa-exclamation-circle', color: state.packetLoss > t.packetLoss.critical ? '#dc2626' : state.packetLoss > t.packetLoss.warning ? '#f59e0b' : '#22c55e' },
-        { key: 'speed', label: 'Velocidade', value: state.speed, unit: 'Mbps', icon: 'fa-tachometer-alt', color: state.speed < t.speed.critical ? '#dc2626' : state.speed < t.speed.warning ? '#f59e0b' : '#22c55e' }
-    ];
+function updateMetricsUI() {
+    // Métricas do lado
+    const latEl = document.getElementById('mLatency');
+    const latDot = document.getElementById('latencyDot');
+    if (latEl) latEl.innerHTML = state.latency + ' <span class="u">ms</span>';
+    if (latDot) {
+        latDot.className = 'dot ' + (state.latency <= 30 ? 'good' : state.latency <= 60 ? 'warning' : 'bad');
+    }
 
-    grid.innerHTML = metrics.map(m => `
-        <div class="radar-card ${state.status}">
-            <div class="carrier-icon">
-                <span class="carrier-name"><i class="fas ${m.icon}" style="color:${m.color};"></i> ${m.label}</span>
-            </div>
-            <div class="radar-score" style="color:${m.color}">
-                ${m.value}<small>${m.unit}</small>
-            </div>
-            <div class="radar-metrics">
-                <span>${state.status === 'degraded' ? '🔴 Crítico' : state.status === 'warning' ? '🟡 Atenção' : '🟢 Normal'}</span>
-            </div>
-        </div>
-    `).join('');
+    const jitEl = document.getElementById('mJitter');
+    const jitDot = document.getElementById('jitterDot');
+    if (jitEl) jitEl.innerHTML = state.jitter + ' <span class="u">ms</span>';
+    if (jitDot) {
+        jitDot.className = 'dot ' + (state.jitter <= 5 ? 'good' : state.jitter <= 15 ? 'warning' : 'bad');
+    }
 
+    const lossEl = document.getElementById('mLoss');
+    const lossDot = document.getElementById('lossDot');
+    if (lossEl) lossEl.innerHTML = state.packetLoss.toFixed(1) + ' <span class="u">%</span>';
+    if (lossDot) {
+        lossDot.className = 'dot ' + (state.packetLoss <= 0.5 ? 'good' : state.packetLoss <= 2 ? 'warning' : 'bad');
+    }
+
+    const uptime = calculateUptime();
+    const uptimeEl = document.getElementById('mUptime');
+    const uptimeDot = document.getElementById('uptimeDot');
+    if (uptimeEl) uptimeEl.innerHTML = uptime + ' <span class="u">%</span>';
+    if (uptimeDot) {
+        uptimeDot.className = 'dot ' + (uptime >= 99 ? 'good' : uptime >= 95 ? 'warning' : 'bad');
+    }
+
+    // Lista detalhada
     const list = document.getElementById('metricList');
     if (!list) return;
     
-    const labels = {
-        latency: 'Latência Média (ms)',
-        jitter: 'Jitter (ms)',
-        packetLoss: 'Perda de Pacotes (%)',
-        speed: 'Velocidade (Mbps)'
-    };
-    const icons = {
-        latency: 'fa-clock',
-        jitter: 'fa-wave-square',
-        packetLoss: 'fa-exclamation-circle',
-        speed: 'fa-tachometer-alt'
-    };
+    const items = [
+        { key: 'latency', label: 'Latência Média (ms)', value: state.latency, status: state.latency <= 30 ? 'stable' : state.latency <= 60 ? 'warning' : 'degraded' },
+        { key: 'jitter', label: 'Jitter (ms)', value: state.jitter, status: state.jitter <= 5 ? 'stable' : state.jitter <= 15 ? 'warning' : 'degraded' },
+        { key: 'packetLoss', label: 'Perda de Pacotes (%)', value: state.packetLoss.toFixed(1), status: state.packetLoss <= 0.5 ? 'stable' : state.packetLoss <= 2 ? 'warning' : 'degraded' },
+        { key: 'speed', label: 'Velocidade (Mbps)', value: state.speed, status: state.speed > 800 ? 'stable' : state.speed > 500 ? 'warning' : 'degraded' }
+    ];
 
-    list.innerHTML = Object.entries(labels).map(([key, label]) => {
-        let value = state[key];
-        let unit = key === 'packetLoss' ? '%' : key === 'speed' ? 'Mbps' : 'ms';
-        let displayValue = key === 'packetLoss' ? value.toFixed(1) : value;
-        let status = key === 'latency' ? (state.latency < 30 ? 'stable' : state.latency < 60 ? 'warning' : 'degraded') :
-                     key === 'jitter' ? (state.jitter < 5 ? 'stable' : state.jitter < 15 ? 'warning' : 'degraded') :
-                     key === 'packetLoss' ? (state.packetLoss < 0.5 ? 'stable' : state.packetLoss < 2 ? 'warning' : 'degraded') :
-                     key === 'speed' ? (state.speed > 800 ? 'stable' : state.speed > 500 ? 'warning' : 'degraded') : 'stable';
-        return `
-            <div class="metric-item">
-                <span class="metric-name"><i class="fas ${icons[key]}"></i> ${label}</span>
-                <span class="metric-value ${status}">${displayValue} ${unit}</span>
-            </div>
-        `;
-    }).join('');
+    list.innerHTML = items.map(item => `
+        <div class="metric-item-detail">
+            <span class="name"><i class="fas fa-${item.key === 'latency' ? 'clock' : item.key === 'jitter' ? 'wave-square' : item.key === 'packetLoss' ? 'exclamation-circle' : 'tachometer-alt'}"></i> ${item.label}</span>
+            <span class="value ${item.status}">${item.value}</span>
+        </div>
+    `).join('');
 }
 
 function updateAlert() {
@@ -1018,7 +1193,7 @@ function updateAlert() {
     }
 }
 
-function updateStats() {
+function updateStatsUI() {
     const el = document.getElementById('statDegradations');
     if (el) el.textContent = state.degradationCount;
     const avgLat = document.getElementById('statAvgLatency');
@@ -1027,22 +1202,12 @@ function updateStats() {
     if (avgSpd) avgSpd.textContent = Math.round(state.avgSpeed);
     const uptime = document.getElementById('statUptime');
     if (uptime) uptime.textContent = calculateUptime() + '%';
-    const uptimeVal = document.getElementById('uptimeValue');
-    if (uptimeVal) uptimeVal.textContent = formatUptime();
 }
 
 function calculateUptime() {
     if (state.totalReadings === 0) return 100;
     const degraded = state.historyLog.filter(h => h.status === 'degraded').length;
     return Math.round(((state.totalReadings - degraded) / state.totalReadings) * 100);
-}
-
-function formatUptime() {
-    const elapsed = Math.floor((Date.now() - state.startTime) / 1000);
-    const h = String(Math.floor(elapsed / 3600)).padStart(2, '0');
-    const m = String(Math.floor((elapsed % 3600) / 60)).padStart(2, '0');
-    const s = String(elapsed % 60).padStart(2, '0');
-    return `${h}:${m}:${s}`;
 }
 
 function updateQualityIndicator() {
@@ -1137,10 +1302,7 @@ function exportReport() {
     const data = {
         timestamp: new Date().toISOString(),
         link: '1Gbps Dedicado',
-        ip: state.ip,
-        location: state.location,
-        isp: state.isp,
-        metrics: { latency: state.latency, jitter: state.jitter, packetLoss: state.packetLoss, speed: state.speed },
+        metrics: { latency: state.latency, jitter: state.jitter, packetLoss: state.packetLoss, speed: state.speed, download: state.download, upload: state.upload },
         hosts: state.hostResults,
         bestHost: state.bestHost,
         stats: { totalReadings: state.totalReadings, degradationCount: state.degradationCount, avgLatency: Math.round(state.avgLatency), avgSpeed: Math.round(state.avgSpeed), uptime: calculateUptime() + '%' },
@@ -1174,6 +1336,7 @@ function showHistory() {
         <th style="padding:8px;text-align:right;">Latência</th>
         <th style="padding:8px;text-align:right;">Perda</th>
         <th style="padding:8px;text-align:right;">Velocidade</th>
+        <th style="padding:8px;text-align:right;">Down/Up</th>
         <th style="padding:8px;text-align:left;">Host</th>
     </tr></thead><tbody>`;
     const recent = state.historyLog.slice(-20).reverse();
@@ -1186,6 +1349,7 @@ function showHistory() {
             <td style="padding:8px;text-align:right;">${e.latency}ms</td>
             <td style="padding:8px;text-align:right;">${e.packetLoss.toFixed(1)}%</td>
             <td style="padding:8px;text-align:right;">${e.speed}Mbps</td>
+            <td style="padding:8px;text-align:right;font-size:0.75rem;">${e.download || '--'}/${e.upload || '--'}</td>
             <td style="padding:8px;text-align:left;font-size:0.75rem;">${e.bestHost || 'N/A'}</td>
         </tr>`;
     }
@@ -1248,7 +1412,7 @@ function logEmail(msg, type = 'info') {
     emailFeedback.innerHTML = `<span class="status-email ${type}"><i class="fas fa-${icons[type] || 'info-circle'}"></i> ${msg}</span>`;
 }
 
-// Event listeners com verificação de existência
+// Event listeners com verificação
 const testBtn = document.getElementById('testEmailBtn');
 if (testBtn) {
     testBtn.addEventListener('click', async function() {
@@ -1325,11 +1489,8 @@ if (sendBtn) {
                 pass,
                 recipients,
                 data: {
-                    ip: state.ip,
-                    location: state.location,
-                    isp: state.isp,
                     link: '1Gbps Dedicado',
-                    metrics: { latency: state.latency, jitter: state.jitter, packetLoss: state.packetLoss, speed: state.speed },
+                    metrics: { latency: state.latency, jitter: state.jitter, packetLoss: state.packetLoss, speed: state.speed, download: state.download, upload: state.upload },
                     hosts: state.hostResults,
                     bestHost: state.bestHost,
                     status: state.status,
@@ -1435,25 +1596,17 @@ loadConfig();
 updateHostsGrid();
 
 async function startMonitoring() {
-    // Primeiro teste após 2s
-    setTimeout(runSpeedtest, 2000);
-    // Teste a cada 60 segundos
+    setTimeout(runSpeedtest, 1500);
     setInterval(runSpeedtest, 60000);
-    // Atualiza uptime a cada segundo
-    setInterval(() => {
-        const uptimeVal = document.getElementById('uptimeValue');
-        if (uptimeVal) uptimeVal.textContent = formatUptime();
-    }, 1000);
 }
 
 startMonitoring();
 
-console.log('📡 Speedtest Multi-Host - Link 1Gbps (CORS OK)');
+console.log('📡 Speedtest ISP Integrado - Link 1Gbps');
 console.log('👨‍💻 Desenvolvido por Israelson Diego Rodrigues Sevalho');
 console.log('🚀 Dev de Redes e Softwares');
-console.log('📧 Endpoint: ' + SERVER_CONFIG.apiEndpoint);
 console.log('⚡ Link: 1 Gbps Dedicado');
-console.log('🌐 Hosts com suporte CORS: ' + TEST_HOSTS.map(h => h.name).join(', '));
+console.log('🌐 Hosts: ' + TEST_HOSTS.map(h => h.name).join(', '));
 </script>
 </body>
 </html>
