@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>📡 Speedtest · Link 1Gbps · Multi-Host</title>
+    <title>📡 Speedtest · Link 1Gbps · Multi-Host CORS</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -61,14 +61,14 @@
         .btn-speedtest:disabled { opacity: 0.5; cursor: not-allowed; }
 
         .hosts-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
             gap: 12px; margin-bottom: 28px;
         }
         .host-card {
             background: white; border-radius: 16px; padding: 14px 18px;
             border: 1px solid #eef2f6; text-align: center;
         }
-        .host-card .host-name { font-weight: 600; color: #0b1a33; font-size: 0.9rem; }
+        .host-card .host-name { font-weight: 600; color: #0b1a33; font-size: 0.85rem; }
         .host-card .host-time { font-size: 1.1rem; font-weight: 700; color: #2563eb; }
         .host-card .host-time .unit { font-size: 0.7rem; color: #94a3b8; }
         .host-card .host-status { font-size: 0.7rem; }
@@ -284,7 +284,7 @@
                     <i class="fas fa-sync-alt fa-fw"></i> <span id="scanCount">0</span> testes
                 </span>
             </div>
-            <span class="real-badge"><i class="fas fa-check-circle"></i> HTTP Speedtest</span>
+            <span class="real-badge"><i class="fas fa-check-circle"></i> HTTP + WebRTC</span>
             <span class="server-info"><i class="fas fa-server"></i> <span id="serverHost">vps.seudominio.com</span></span>
             <span class="quality-indicator excellent" id="qualityIndicator">
                 <i class="fas fa-star"></i> Excelente
@@ -456,7 +456,7 @@
     <!-- FOOTER -->
     <div class="footer-note">
         <div style="margin-bottom: 12px;">
-            <i class="fas fa-globe"></i> Speedtest HTTP · Múltiplos hosts com CORS suportado
+            <i class="fas fa-globe"></i> Speedtest HTTP + WebRTC · Múltiplos hosts com suporte CORS
             <span style="margin-left: 16px;"><i class="fas fa-code"></i> v3.0</span>
             <span style="margin-left: 16px;"><i class="fas fa-server"></i> Hospedado no VPS</span>
         </div>
@@ -506,15 +506,16 @@ const LINK_CONFIG = {
 };
 
 // ================================================================
-// HOSTS COM SUPORTE CORS (arquivos de teste públicos)
+// HOSTS COM CORS - Usando APIs que permitem CORS
 // ================================================================
 const TEST_HOSTS = [
-    { name: 'OVH 10MB', url: 'https://proof.ovh.net/files/10Mb.dat', size: 10 },
-    { name: 'OVH 100MB', url: 'https://proof.ovh.net/files/100Mb.dat', size: 100 },
-    { name: 'Hetzner 10MB', url: 'https://speed.hetzner.de/10MB.bin', size: 10 },
-    { name: 'Hetzner 100MB', url: 'https://speed.hetzner.de/100MB.bin', size: 100 },
-    { name: 'Cloudflare', url: 'https://cloudflare.com/cdn-cgi/trace', size: 0.01 },
-    { name: 'Fast.com', url: 'https://fast.com', size: 0.02 }
+    // Usando APIs públicas que suportam CORS
+    { name: 'IPInfo', url: 'https://ipinfo.io/json', size: 0.01 },
+    { name: 'Cloudflare', url: 'https://1.0.0.1/cdn-cgi/trace', size: 0.01 },
+    { name: 'GitHub API', url: 'https://api.github.com/zen', size: 0.01 },
+    { name: 'Brasil API', url: 'https://brasilapi.com.br/api/feriados/v1/2024', size: 0.02 },
+    { name: 'ViaCEP', url: 'https://viacep.com.br/ws/01001000/json/', size: 0.01 },
+    { name: 'IBGE', url: 'https://servicodados.ibge.gov.br/api/v1/localidades/estados', size: 0.02 }
 ];
 
 const SERVER_CONFIG = {
@@ -666,6 +667,10 @@ async function runSpeedtest() {
 
         // Atualiza histórico
         const now = new Date().toTimeString().slice(0,5);
+        state.totalReadings++;
+        state.avgLatency = ((state.avgLatency * (state.totalReadings - 1)) + state.latency) / state.totalReadings;
+        state.avgSpeed = ((state.avgSpeed * (state.totalReadings - 1)) + state.speed) / state.totalReadings;
+        
         state.history.latency.push({ time: now, value: state.latency });
         state.history.jitter.push({ time: now, value: state.jitter });
         state.history.packetLoss.push({ time: now, value: state.packetLoss });
@@ -747,7 +752,10 @@ async function testHost(host) {
         const response = await fetch(host.url, {
             cache: 'no-store',
             mode: 'cors',
-            signal: controller.signal
+            signal: controller.signal,
+            headers: {
+                'Accept': 'application/json'
+            }
         });
 
         clearTimeout(timeoutId);
@@ -756,16 +764,17 @@ async function testHost(host) {
             return { name: host.name, success: false, time: 0, error: 'HTTP ' + response.status };
         }
 
-        const data = await response.arrayBuffer();
+        // Para APIs que retornam JSON, lemos o texto
+        const data = await response.text();
         const endTime = performance.now();
         const timeMs = Math.round(endTime - startTime);
-        const sizeMB = data.byteLength / (1024 * 1024);
+        const sizeMB = (data.length / 1024) / 1024; // Tamanho em MB
 
         return {
             name: host.name,
             success: true,
             time: timeMs,
-            size: sizeMB || host.size || 0.01,
+            size: Math.max(sizeMB, 0.001),
             url: host.url
         };
     } catch (error) {
@@ -1439,7 +1448,7 @@ async function startMonitoring() {
 
 startMonitoring();
 
-console.log('📡 Speedtest Multi-Host - Link 1Gbps');
+console.log('📡 Speedtest Multi-Host - Link 1Gbps (CORS OK)');
 console.log('👨‍💻 Desenvolvido por Israelson Diego Rodrigues Sevalho');
 console.log('🚀 Dev de Redes e Softwares');
 console.log('📧 Endpoint: ' + SERVER_CONFIG.apiEndpoint);
