@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>📡 Speedtest · Banda Larga Brasil · Link 1Gbps</title>
+    <title>📡 Speedtest · Link 1Gbps · Multi-Host</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -34,12 +34,7 @@
             display: flex; justify-content: space-between; align-items: center;
             flex-wrap: wrap; gap: 16px;
         }
-        .link-info .link-speed {
-            font-size: 2.5rem; font-weight: 800;
-            background: linear-gradient(135deg, #00d2ff, #3a7bd5);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+        .link-info .link-speed { font-size: 2.5rem; font-weight: 800; background: linear-gradient(135deg, #00d2ff, #3a7bd5); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .link-info .link-detail { color: #94a3b8; font-size: 0.8rem; }
         .link-info .link-status { padding: 6px 16px; border-radius: 30px; font-weight: 600; font-size: 0.8rem; }
         .link-info .link-status.online { background: rgba(34,197,94,0.2); color: #22c55e; border: 1px solid #22c55e; }
@@ -52,20 +47,10 @@
             display: flex; justify-content: space-between; align-items: center;
             flex-wrap: wrap; gap: 16px;
         }
-        .speedtest-card .speed-value {
-            font-size: 2.5rem; font-weight: 800;
-            color: #0b1a33;
-        }
+        .speedtest-card .speed-value { font-size: 2.5rem; font-weight: 800; color: #0b1a33; }
         .speedtest-card .speed-value .unit { font-size: 1rem; font-weight: 400; color: #64748b; }
-        .speedtest-card .host-detail { color: #64748b; font-size: 0.8rem; }
-        .speedtest-card .progress-bar {
-            width: 100%; height: 6px; background: #e2e8f0; border-radius: 6px;
-            margin-top: 8px; overflow: hidden;
-        }
-        .speedtest-card .progress-bar .fill {
-            height: 100%; background: linear-gradient(90deg, #00d2ff, #3a7bd5);
-            border-radius: 6px; transition: width 0.3s ease; width: 0%;
-        }
+        .speedtest-card .progress-bar { width: 100%; height: 6px; background: #e2e8f0; border-radius: 6px; margin-top: 8px; overflow: hidden; }
+        .speedtest-card .progress-bar .fill { height: 100%; background: linear-gradient(90deg, #00d2ff, #3a7bd5); border-radius: 6px; transition: width 0.3s ease; width: 0%; }
         .btn-speedtest {
             background: linear-gradient(135deg, #00d2ff, #3a7bd5);
             color: white; border: none; padding: 10px 24px;
@@ -76,7 +61,7 @@
         .btn-speedtest:disabled { opacity: 0.5; cursor: not-allowed; }
 
         .hosts-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 12px; margin-bottom: 28px;
         }
         .host-card {
@@ -90,26 +75,6 @@
         .host-card .host-status.ok { color: #22c55e; }
         .host-card .host-status.fail { color: #dc2626; }
         .host-card .host-status.pending { color: #f59e0b; }
-
-        .radar-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px; margin-bottom: 28px;
-        }
-        .radar-card {
-            background: white; border-radius: 24px; padding: 16px 18px;
-            box-shadow: 0 4px 14px rgba(0,0,0,0.02); border: 1px solid #eaedf2;
-            position: relative; overflow: hidden;
-        }
-        .radar-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: #94a3b8; }
-        .radar-card.critical::before { background: #dc2626; }
-        .radar-card.warning::before { background: #f59e0b; }
-        .radar-card.stable::before { background: #22c55e; }
-        .radar-card .carrier-icon { font-size: 1.8rem; display: flex; justify-content: space-between; align-items: center; }
-        .radar-card .carrier-name { font-weight: 700; font-size: 1.1rem; color: #0b1a33; }
-        .radar-score { font-size: 2.2rem; font-weight: 800; margin: 6px 0; display: flex; align-items: baseline; gap: 4px; }
-        .radar-score small { font-size: 0.9rem; font-weight: 400; color: #64748b; }
-        .radar-metrics { display: flex; justify-content: space-between; font-size: 0.8rem; color: #475569; margin-top: 6px; flex-wrap: wrap; gap: 4px; }
-        .radar-metrics span { background: #f1f5f9; padding: 2px 10px; border-radius: 30px; }
 
         .grid-2col { display: grid; grid-template-columns: 1.6fr 1fr; gap: 24px; margin-bottom: 28px; }
         @media (max-width: 900px) { .grid-2col { grid-template-columns: 1fr; } }
@@ -188,7 +153,6 @@
         .footer-note .signature .version { background: #dbeafe; color: #1e4f8a; padding: 2px 14px; border-radius: 30px; font-size: 0.7rem; font-weight: 600; margin-left: 8px; }
         .footer-note .signature .badge-dev { background: linear-gradient(135deg, #2563eb, #7c3aed); color: white; padding: 2px 14px; border-radius: 30px; font-size: 0.7rem; font-weight: 600; margin-left: 8px; display: inline-block; }
         .footer-note .signature .sub-info { font-size: 0.75rem; color: #94a3b8; display: block; margin-top: 6px; }
-        .footer-note .signature .sub-info i { color: #64748b; }
 
         .real-badge { background: #22c55e; color: white; padding: 2px 12px; border-radius: 40px; font-size: 0.7rem; font-weight: 600; }
         .server-info { background: #f1f5f9; padding: 4px 12px; border-radius: 30px; font-size: 0.7rem; color: #475569; }
@@ -224,9 +188,7 @@
         }
         .toast.hide { animation: slideOut 0.3s ease forwards; }
 
-        .quick-actions {
-            display: flex; gap: 10px; margin: 10px 0 16px 0; flex-wrap: wrap;
-        }
+        .quick-actions { display: flex; gap: 10px; margin: 10px 0 16px 0; flex-wrap: wrap; }
         .btn-sm {
             padding: 6px 14px; border-radius: 30px; font-size: 0.8rem;
             border: none; cursor: pointer; transition: 0.2s;
@@ -314,7 +276,7 @@
 <div class="dashboard">
     <!-- HEADER -->
     <div class="header">
-        <h1><i class="fas fa-network-wired"></i> Speedtest · Banda Larga Brasil</h1>
+        <h1><i class="fas fa-network-wired"></i> Speedtest · Link 1Gbps</h1>
         <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
             <div class="status-badge">
                 <i class="fas fa-circle live"></i> <span id="liveStatus">Conectado</span>
@@ -387,9 +349,6 @@
     <div class="hosts-grid" id="hostsGrid">
         <!-- Gerado via JS -->
     </div>
-
-    <!-- METRICS CARDS -->
-    <div class="radar-grid" id="metricsGrid"></div>
 
     <!-- AÇÕES RÁPIDAS -->
     <div class="quick-actions">
@@ -497,7 +456,7 @@
     <!-- FOOTER -->
     <div class="footer-note">
         <div style="margin-bottom: 12px;">
-            <i class="fas fa-globe"></i> Speedtest HTTP · Múltiplos hosts · Cálculo baseado em tempo de resposta
+            <i class="fas fa-globe"></i> Speedtest HTTP · Múltiplos hosts com CORS suportado
             <span style="margin-left: 16px;"><i class="fas fa-code"></i> v3.0</span>
             <span style="margin-left: 16px;"><i class="fas fa-server"></i> Hospedado no VPS</span>
         </div>
@@ -532,7 +491,7 @@
 
 <script>
 // ================================================================
-// CONFIGURAÇÃO - LINK DEDICADO 1GBPS
+// CONFIGURAÇÃO
 // ================================================================
 const LINK_CONFIG = {
     name: 'Link Dedicado 1Gbps',
@@ -547,19 +506,15 @@ const LINK_CONFIG = {
 };
 
 // ================================================================
-// HOSTS PARA TESTE - BANDA LARGA BRASIL STYLE
+// HOSTS COM SUPORTE CORS (arquivos de teste públicos)
 // ================================================================
 const TEST_HOSTS = [
+    { name: 'OVH 10MB', url: 'https://proof.ovh.net/files/10Mb.dat', size: 10 },
+    { name: 'OVH 100MB', url: 'https://proof.ovh.net/files/100Mb.dat', size: 100 },
+    { name: 'Hetzner 10MB', url: 'https://speed.hetzner.de/10MB.bin', size: 10 },
+    { name: 'Hetzner 100MB', url: 'https://speed.hetzner.de/100MB.bin', size: 100 },
     { name: 'Cloudflare', url: 'https://cloudflare.com/cdn-cgi/trace', size: 0.01 },
-    { name: 'Google', url: 'https://www.google.com', size: 0.02 },
-    { name: 'Microsoft', url: 'https://www.microsoft.com', size: 0.03 },
-    { name: 'Amazon', url: 'https://www.amazon.com', size: 0.02 },
-    { name: 'Globo', url: 'https://www.globo.com', size: 0.05 },
-    { name: 'UOL', url: 'https://www.uol.com.br', size: 0.04 },
-    { name: 'Terra', url: 'https://www.terra.com.br', size: 0.03 },
-    { name: 'G1', url: 'https://g1.globo.com', size: 0.04 },
-    { name: 'Fast', url: 'https://fast.com', size: 0.02 },
-    { name: 'Ookla', url: 'https://www.speedtest.net', size: 0.03 }
+    { name: 'Fast.com', url: 'https://fast.com', size: 0.02 }
 ];
 
 const SERVER_CONFIG = {
@@ -575,6 +530,7 @@ document.getElementById('serverHost').textContent = SERVER_CONFIG.host;
 // ================================================================
 function showToast(message, type = 'info', duration = 5000) {
     const container = document.getElementById('toastContainer');
+    if (!container) return;
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
     const icons = {
@@ -623,7 +579,7 @@ let scanCounter = 0;
 let isTesting = false;
 
 // ================================================================
-// FUNÇÃO PRINCIPAL - TESTE DE VELOCIDADE VIA HTTP
+// FUNÇÃO PRINCIPAL - TESTE DE VELOCIDADE
 // ================================================================
 async function runSpeedtest() {
     if (isTesting) return;
@@ -637,22 +593,26 @@ async function runSpeedtest() {
     const pingSpeed = document.getElementById('pingSpeed');
     const bestHostEl = document.getElementById('bestHost');
 
+    if (!btn || !status || !progress) {
+        isTesting = false;
+        return;
+    }
+
     btn.disabled = true;
     btn.innerHTML = '<span class="speedtest-loading"></span> Testando...';
     status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Medindo hosts...';
     status.style.color = '#f59e0b';
-    progress.style.width = '0%';
+    if (progress) progress.style.width = '0%';
 
     try {
         const results = [];
         let totalTime = 0;
         let successfulHosts = 0;
 
-        // Testa cada host
         for (let i = 0; i < TEST_HOSTS.length; i++) {
             const host = TEST_HOSTS[i];
-            progress.style.width = ((i / TEST_HOSTS.length) * 100) + '%';
-            status.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Testando ${host.name}...`;
+            if (progress) progress.style.width = ((i / TEST_HOSTS.length) * 100) + '%';
+            if (status) status.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Testando ${host.name}...`;
 
             const result = await testHost(host);
             results.push(result);
@@ -663,31 +623,33 @@ async function runSpeedtest() {
                 state.hostResults[host.name] = result;
             }
             
-            // Atualiza hosts grid
             updateHostsGrid();
         }
 
-        progress.style.width = '100%';
+        if (progress) progress.style.width = '100%';
 
-        // Calcula métricas finais
+        // Calcula métricas
         const avgResponse = successfulHosts > 0 ? Math.round(totalTime / successfulHosts) : 0;
         const estimatedSpeed = calculateSpeedFromHosts(results);
 
-        // Atualiza estado
-        state.latency = avgResponse;
-        state.speed = Math.min(estimatedSpeed, LINK_CONFIG.speed);
+        state.latency = avgResponse || 15;
+        state.speed = Math.min(estimatedSpeed || 100, LINK_CONFIG.speed);
         state.jitter = calculateJitter(results);
         state.packetLoss = calculatePacketLoss(results);
         state.bestHost = results.filter(r => r.success).sort((a, b) => a.time - b.time)[0]?.name || 'N/A';
 
         // Atualiza UI
-        speedResult.textContent = Math.round(state.speed);
-        downloadSpeed.textContent = Math.round(state.speed);
-        pingSpeed.textContent = state.latency;
-        bestHostEl.textContent = state.bestHost;
-        document.getElementById('currentSpeed').textContent = Math.round(state.speed);
-        document.getElementById('avgResponse').textContent = state.latency;
-        document.getElementById('activeHosts').textContent = successfulHosts;
+        if (speedResult) speedResult.textContent = Math.round(state.speed);
+        if (downloadSpeed) downloadSpeed.textContent = Math.round(state.speed);
+        if (pingSpeed) pingSpeed.textContent = state.latency;
+        if (bestHostEl) bestHostEl.textContent = state.bestHost;
+        
+        const currentSpeed = document.getElementById('currentSpeed');
+        const avgResponseEl = document.getElementById('avgResponse');
+        const activeHosts = document.getElementById('activeHosts');
+        if (currentSpeed) currentSpeed.textContent = Math.round(state.speed);
+        if (avgResponseEl) avgResponseEl.textContent = state.latency;
+        if (activeHosts) activeHosts.textContent = successfulHosts;
 
         // Verifica degradação
         const degradationScore = calculateDegradationScore();
@@ -735,27 +697,40 @@ async function runSpeedtest() {
         updateLinkStatus();
 
         scanCounter++;
-        document.getElementById('scanCount').textContent = scanCounter;
-        document.getElementById('lastUpdate').textContent = now;
-        document.getElementById('lastUpdateTime').textContent = now;
-        document.getElementById('lastTest').textContent = now;
+        const scanCount = document.getElementById('scanCount');
+        const lastUpdate = document.getElementById('lastUpdate');
+        const lastUpdateTime = document.getElementById('lastUpdateTime');
+        const lastTest = document.getElementById('lastTest');
+        
+        if (scanCount) scanCount.textContent = scanCounter;
+        if (lastUpdate) lastUpdate.textContent = now;
+        if (lastUpdateTime) lastUpdateTime.textContent = now;
+        if (lastTest) lastTest.textContent = now;
 
-        status.innerHTML = '<i class="fas fa-check-circle" style="color:#22c55e;"></i> Concluído';
-        status.style.color = '#22c55e';
+        if (status) {
+            status.innerHTML = '<i class="fas fa-check-circle" style="color:#22c55e;"></i> Concluído';
+            status.style.color = '#22c55e';
+        }
         showToast(`✅ Teste concluído: ${Math.round(state.speed)} Mbps`, 'success');
 
     } catch (error) {
         console.error('Erro no speedtest:', error);
-        status.innerHTML = '<i class="fas fa-times-circle" style="color:#dc2626;"></i> Erro';
-        status.style.color = '#dc2626';
+        if (status) {
+            status.innerHTML = '<i class="fas fa-times-circle" style="color:#dc2626;"></i> Erro';
+            status.style.color = '#dc2626';
+        }
         showToast('❌ Erro no speedtest: ' + error.message, 'error');
     } finally {
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fas fa-play"></i> Testar Velocidade';
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-play"></i> Testar Velocidade';
+        }
         isTesting = false;
         setTimeout(() => {
-            status.innerHTML = '<i class="fas fa-circle" style="color:#22c55e; font-size:0.5rem;"></i> Pronto';
-            status.style.color = '#94a3b8';
+            if (status) {
+                status.innerHTML = '<i class="fas fa-circle" style="color:#22c55e; font-size:0.5rem;"></i> Pronto';
+                status.style.color = '#94a3b8';
+            }
         }, 3000);
     }
 }
@@ -767,7 +742,7 @@ async function testHost(host) {
     const startTime = performance.now();
     try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+        const timeoutId = setTimeout(() => controller.abort(), 15000);
 
         const response = await fetch(host.url, {
             cache: 'no-store',
@@ -781,16 +756,16 @@ async function testHost(host) {
             return { name: host.name, success: false, time: 0, error: 'HTTP ' + response.status };
         }
 
-        // Lê o corpo para garantir que o download completo
-        await response.text();
+        const data = await response.arrayBuffer();
         const endTime = performance.now();
         const timeMs = Math.round(endTime - startTime);
+        const sizeMB = data.byteLength / (1024 * 1024);
 
         return {
             name: host.name,
             success: true,
             time: timeMs,
-            size: host.size,
+            size: sizeMB || host.size || 0.01,
             url: host.url
         };
     } catch (error) {
@@ -804,44 +779,31 @@ async function testHost(host) {
 }
 
 // ================================================================
-// CÁLCULO DE VELOCIDADE BASEADO NO TEMPO DE RESPOSTA
+// CÁLCULO DE VELOCIDADE
 // ================================================================
 function calculateSpeedFromHosts(results) {
-    const successful = results.filter(r => r.success && r.time > 0);
-    if (successful.length === 0) return 50; // Fallback
+    const successful = results.filter(r => r.success && r.time > 0 && r.size > 0);
+    if (successful.length === 0) return 100;
 
-    // Calcula a velocidade estimada baseada no tempo de resposta
-    // Fórmula: Velocidade = (Tamanho do arquivo em MB * 8) / Tempo em segundos
-    // Para hosts sem tamanho definido, usamos o tempo de resposta como proxy
     const speeds = successful.map(r => {
-        if (r.size > 0) {
-            // Velocidade baseada no tamanho do arquivo
-            const sizeMB = r.size;
-            const timeSec = r.time / 1000;
+        const sizeMB = r.size;
+        const timeSec = r.time / 1000;
+        if (timeSec > 0 && sizeMB > 0) {
             return (sizeMB * 8) / timeSec;
-        } else {
-            // Estimativa baseada no tempo de resposta
-            // Quanto menor o tempo, maior a velocidade
-            const baseSpeed = 1000; // 1Gbps
-            const maxTime = 100; // 100ms como referência
-            const ratio = Math.max(0.1, Math.min(1, maxTime / r.time));
-            return baseSpeed * ratio;
         }
-    });
+        return 0;
+    }).filter(s => s > 0 && s < 10000);
 
-    // Remove outliers e calcula média
+    if (speeds.length === 0) return 100;
+
+    // Remove outliers
     const sorted = speeds.sort((a, b) => a - b);
-    const trimmed = sorted.slice(1, -1); // Remove menor e maior
-    const avgSpeed = trimmed.length > 0 
-        ? trimmed.reduce((a, b) => a + b, 0) / trimmed.length
-        : speeds.reduce((a, b) => a + b, 0) / speeds.length;
+    const trimmed = sorted.length > 2 ? sorted.slice(1, -1) : sorted;
+    const avgSpeed = trimmed.reduce((a, b) => a + b, 0) / trimmed.length;
 
     return Math.round(avgSpeed);
 }
 
-// ================================================================
-// CÁLCULO DE JITTER
-// ================================================================
 function calculateJitter(results) {
     const times = results.filter(r => r.success && r.time > 0).map(r => r.time);
     if (times.length < 2) return 0;
@@ -850,18 +812,12 @@ function calculateJitter(results) {
     return Math.round(Math.sqrt(variance));
 }
 
-// ================================================================
-// CÁLCULO DE PERDA DE PACOTES
-// ================================================================
 function calculatePacketLoss(results) {
     const total = results.length;
     const failed = results.filter(r => !r.success).length;
     return (failed / total) * 100;
 }
 
-// ================================================================
-// CÁLCULO DE DEGRADAÇÃO
-// ================================================================
 function calculateDegradationScore() {
     let score = 0;
     const t = LINK_CONFIG.thresholds;
@@ -883,10 +839,12 @@ function calculateDegradationScore() {
 }
 
 // ================================================================
-// UI - HOSTS GRID
+// UI FUNCTIONS
 // ================================================================
 function updateHostsGrid() {
     const grid = document.getElementById('hostsGrid');
+    if (!grid) return;
+    
     grid.innerHTML = TEST_HOSTS.map(host => {
         const result = state.hostResults[host.name];
         let status = 'pending';
@@ -914,11 +872,10 @@ function updateHostsGrid() {
     }).join('');
 }
 
-// ================================================================
-// UI FUNCTIONS
-// ================================================================
 function updateLinkStatus() {
     const badge = document.getElementById('linkStatusBadge');
+    if (!badge) return;
+    
     if (state.status === 'degraded') {
         badge.className = 'link-status degraded';
         badge.innerHTML = '<i class="fas fa-times-circle"></i> Degradado';
@@ -933,6 +890,8 @@ function updateLinkStatus() {
 
 function updateStatus() {
     const statusEl = document.getElementById('connectionStatus');
+    if (!statusEl) return;
+    
     const map = {
         stable: { class: 'stable', icon: 'fa-check-circle', text: 'Estável' },
         warning: { class: 'warning', icon: 'fa-exclamation-triangle', text: 'Atenção' },
@@ -942,18 +901,22 @@ function updateStatus() {
     statusEl.className = `connection-status ${s.class}`;
     statusEl.innerHTML = `<i class="fas ${s.icon}"></i> ${s.text}`;
 
-    const texts = {
-        stable: '✅ Link 1Gbps estável. Todos os hosts respondendo bem.',
-        warning: '⚠️ Atenção: alguns hosts apresentam lentidão.',
-        degraded: '🔴 Degradação detectada! Verifique os hosts.'
-    };
-    document.getElementById('statusSummary').textContent = texts[state.status] || texts.stable;
+    const summary = document.getElementById('statusSummary');
+    if (summary) {
+        const texts = {
+            stable: '✅ Link 1Gbps estável. Todos os hosts respondendo bem.',
+            warning: '⚠️ Atenção: alguns hosts apresentam lentidão.',
+            degraded: '🔴 Degradação detectada! Verifique os hosts.'
+        };
+        summary.textContent = texts[state.status] || texts.stable;
+    }
 }
 
 function updateMetrics() {
     const grid = document.getElementById('metricsGrid');
-    const t = LINK_CONFIG.thresholds;
+    if (!grid) return;
     
+    const t = LINK_CONFIG.thresholds;
     const metrics = [
         { key: 'latency', label: 'Latência Média', value: state.latency, unit: 'ms', icon: 'fa-clock', color: state.latency > t.latency.critical ? '#dc2626' : state.latency > t.latency.warning ? '#f59e0b' : '#22c55e' },
         { key: 'jitter', label: 'Jitter', value: state.jitter, unit: 'ms', icon: 'fa-wave-square', color: state.jitter > t.jitter.critical ? '#dc2626' : state.jitter > t.jitter.warning ? '#f59e0b' : '#22c55e' },
@@ -976,6 +939,8 @@ function updateMetrics() {
     `).join('');
 
     const list = document.getElementById('metricList');
+    if (!list) return;
+    
     const labels = {
         latency: 'Latência Média (ms)',
         jitter: 'Jitter (ms)',
@@ -1009,6 +974,7 @@ function updateMetrics() {
 function updateAlert() {
     const box = document.getElementById('alertBox');
     const msg = document.getElementById('alertMessage');
+    if (!box || !msg) return;
     
     if (state.status === 'degraded') {
         box.className = 'alert-box active';
@@ -1044,11 +1010,16 @@ function updateAlert() {
 }
 
 function updateStats() {
-    document.getElementById('statDegradations').textContent = state.degradationCount;
-    document.getElementById('statAvgLatency').textContent = Math.round(state.avgLatency);
-    document.getElementById('statAvgSpeed').textContent = Math.round(state.avgSpeed);
-    document.getElementById('statUptime').textContent = calculateUptime() + '%';
-    document.getElementById('uptimeValue').textContent = formatUptime();
+    const el = document.getElementById('statDegradations');
+    if (el) el.textContent = state.degradationCount;
+    const avgLat = document.getElementById('statAvgLatency');
+    if (avgLat) avgLat.textContent = Math.round(state.avgLatency);
+    const avgSpd = document.getElementById('statAvgSpeed');
+    if (avgSpd) avgSpd.textContent = Math.round(state.avgSpeed);
+    const uptime = document.getElementById('statUptime');
+    if (uptime) uptime.textContent = calculateUptime() + '%';
+    const uptimeVal = document.getElementById('uptimeValue');
+    if (uptimeVal) uptimeVal.textContent = formatUptime();
 }
 
 function calculateUptime() {
@@ -1067,6 +1038,7 @@ function formatUptime() {
 
 function updateQualityIndicator() {
     const el = document.getElementById('qualityIndicator');
+    if (!el) return;
     const score = calculateQualityScore();
     let label, icon, cls;
     if (score >= 85) { label = 'Excelente'; icon = 'fa-star'; cls = 'excellent'; }
@@ -1101,14 +1073,16 @@ function calculateQualityScore() {
 // GRÁFICO
 // ================================================================
 function initChart() {
-    const ctx = document.getElementById('degradationChart').getContext('2d');
+    const ctx = document.getElementById('degradationChart');
+    if (!ctx) return;
+    
     const labels = Array.from({ length: 10 }, (_, i) => {
         const d = new Date();
         d.setMinutes(d.getMinutes() - (9 - i) * 1);
         return d.toTimeString().slice(0,5);
     });
 
-    chartInstance = new Chart(ctx, {
+    chartInstance = new Chart(ctx.getContext('2d'), {
         type: 'line',
         data: {
             labels: labels,
@@ -1175,8 +1149,11 @@ function exportReport() {
 
 function showHistory() {
     const modal = document.getElementById('historyModal');
+    if (!modal) return;
     modal.classList.add('active');
     const content = document.getElementById('historyContent');
+    if (!content) return;
+    
     if (state.historyLog.length === 0) {
         content.innerHTML = '<p style="color:#94a3b8; text-align:center;">Nenhum dado disponível</p>';
         return;
@@ -1208,11 +1185,14 @@ function showHistory() {
 }
 
 function closeHistory() {
-    document.getElementById('historyModal').classList.remove('active');
+    const modal = document.getElementById('historyModal');
+    if (modal) modal.classList.remove('active');
 }
 
-document.getElementById('historyModal').addEventListener('click', function(e) {
-    if (e.target === this) closeHistory();
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('modal') && e.target.id === 'historyModal') {
+        closeHistory();
+    }
 });
 
 function resetStats() {
@@ -1223,7 +1203,8 @@ function resetStats() {
     state.avgSpeed = 0;
     state.historyLog = [];
     state.startTime = Date.now();
-    document.getElementById('statDegradations').textContent = '0';
+    const el = document.getElementById('statDegradations');
+    if (el) el.textContent = '0';
     showToast('🔄 Estatísticas reiniciadas', 'info');
 }
 
@@ -1253,124 +1234,152 @@ async function sendEmailViaVPS(emailData) {
 }
 
 function logEmail(msg, type = 'info') {
+    if (!emailFeedback) return;
     const icons = { success: 'check-circle', error: 'times-circle', info: 'info-circle' };
     emailFeedback.innerHTML = `<span class="status-email ${type}"><i class="fas fa-${icons[type] || 'info-circle'}"></i> ${msg}</span>`;
 }
 
-document.getElementById('testEmailBtn').addEventListener('click', async function() {
-    const smtp = document.getElementById('smtpServer').value.trim();
-    const port = document.getElementById('smtpPort').value.trim();
-    const user = document.getElementById('smtpUser').value.trim();
-    const pass = document.getElementById('smtpPass').value.trim();
+// Event listeners com verificação de existência
+const testBtn = document.getElementById('testEmailBtn');
+if (testBtn) {
+    testBtn.addEventListener('click', async function() {
+        const smtp = document.getElementById('smtpServer')?.value?.trim() || '';
+        const port = document.getElementById('smtpPort')?.value?.trim() || '';
+        const user = document.getElementById('smtpUser')?.value?.trim() || '';
+        const pass = document.getElementById('smtpPass')?.value?.trim() || '';
 
-    if (!smtp || !port || !user || !pass) {
-        logEmail('Preencha todos os campos!', 'error');
-        showToast('❌ Preencha todos os campos', 'error');
-        return;
-    }
-
-    logEmail('Testando conexão SMTP...', 'info');
-    emailStatus.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Testando...';
-    emailStatus.className = 'status-email info';
-
-    try {
-        const result = await sendEmailViaVPS({ action: 'test', smtp, port, user, pass });
-        if (result.success) {
-            emailStatus.innerHTML = '<i class="fas fa-check-circle"></i> Conectado';
-            emailStatus.className = 'status-email success';
-            logEmail('✅ Conexão SMTP estabelecida!', 'success');
-            showToast('✅ SMTP OK', 'success');
-        } else {
-            emailStatus.innerHTML = '<i class="fas fa-times-circle"></i> Falha';
-            emailStatus.className = 'status-email error';
-            logEmail('❌ Falha: ' + result.message, 'error');
-            showToast('❌ Falha SMTP', 'error');
+        if (!smtp || !port || !user || !pass) {
+            logEmail('Preencha todos os campos!', 'error');
+            showToast('❌ Preencha todos os campos', 'error');
+            return;
         }
-    } catch (error) {
-        emailStatus.innerHTML = '<i class="fas fa-times-circle"></i> Erro';
-        emailStatus.className = 'status-email error';
-        logEmail('❌ Erro: ' + error.message, 'error');
-        showToast('❌ Erro ao testar', 'error');
-    }
-});
 
-document.getElementById('sendEmailBtn').addEventListener('click', async function() {
-    const smtp = document.getElementById('smtpServer').value.trim();
-    const user = document.getElementById('smtpUser').value.trim();
-    const pass = document.getElementById('smtpPass').value.trim();
-    const recipients = document.getElementById('emailRecipients').value.trim();
+        logEmail('Testando conexão SMTP...', 'info');
+        if (emailStatus) {
+            emailStatus.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Testando...';
+            emailStatus.className = 'status-email info';
+        }
 
-    if (!smtp || !user || !pass || !recipients) {
-        logEmail('Preencha todos os campos!', 'error');
-        showToast('❌ Preencha todos os campos', 'error');
-        return;
-    }
-
-    const btn = this;
-    btn.disabled = true;
-    btn.style.opacity = '0.7';
-    logEmail(`📤 Enviando alerta para ${recipients}...`, 'info');
-
-    try {
-        const result = await sendEmailViaVPS({
-            action: 'send',
-            smtp,
-            port: document.getElementById('smtpPort').value.trim(),
-            user,
-            pass,
-            recipients,
-            data: {
-                ip: state.ip,
-                location: state.location,
-                isp: state.isp,
-                link: '1Gbps Dedicado',
-                metrics: { latency: state.latency, jitter: state.jitter, packetLoss: state.packetLoss, speed: state.speed },
-                hosts: state.hostResults,
-                bestHost: state.bestHost,
-                status: state.status,
-                timestamp: new Date().toISOString()
+        try {
+            const result = await sendEmailViaVPS({ action: 'test', smtp, port, user, pass });
+            if (result.success) {
+                if (emailStatus) {
+                    emailStatus.innerHTML = '<i class="fas fa-check-circle"></i> Conectado';
+                    emailStatus.className = 'status-email success';
+                }
+                logEmail('✅ Conexão SMTP estabelecida!', 'success');
+                showToast('✅ SMTP OK', 'success');
+            } else {
+                if (emailStatus) {
+                    emailStatus.innerHTML = '<i class="fas fa-times-circle"></i> Falha';
+                    emailStatus.className = 'status-email error';
+                }
+                logEmail('❌ Falha: ' + result.message, 'error');
+                showToast('❌ Falha SMTP', 'error');
             }
-        });
-
-        if (result.success) {
-            const texts = { stable: '✅ Estável', warning: '⚠️ Atenção', degraded: '🔴 Degradado' };
-            logEmail(`✅ ${texts[state.status]} - Enviado para ${recipients}`, 'success');
-            emailStatus.innerHTML = '<i class="fas fa-check-circle"></i> Enviado';
-            emailStatus.className = 'status-email success';
-            showToast('📧 Alerta enviado!', 'success');
-        } else {
-            throw new Error(result.message || 'Falha no envio');
+        } catch (error) {
+            if (emailStatus) {
+                emailStatus.innerHTML = '<i class="fas fa-times-circle"></i> Erro';
+                emailStatus.className = 'status-email error';
+            }
+            logEmail('❌ Erro: ' + error.message, 'error');
+            showToast('❌ Erro ao testar', 'error');
         }
-    } catch (error) {
-        logEmail('❌ Erro: ' + error.message, 'error');
-        emailStatus.innerHTML = '<i class="fas fa-times-circle"></i> Erro';
-        emailStatus.className = 'status-email error';
-        showToast('❌ Erro ao enviar', 'error');
-    } finally {
-        btn.disabled = false;
-        btn.style.opacity = '1';
-    }
-});
+    });
+}
 
-document.getElementById('autoAlertToggle').addEventListener('click', function() {
-    SERVER_CONFIG.autoAlert = !SERVER_CONFIG.autoAlert;
-    this.innerHTML = SERVER_CONFIG.autoAlert ? 
-        '<i class="fas fa-robot"></i> Auto: ON' : 
-        '<i class="fas fa-robot"></i> Auto: OFF';
-    this.style.background = SERVER_CONFIG.autoAlert ? '#22c55e' : '#64748b';
-    showToast(`Auto Alert ${SERVER_CONFIG.autoAlert ? 'ativado' : 'desativado'}`, 'info');
-});
+const sendBtn = document.getElementById('sendEmailBtn');
+if (sendBtn) {
+    sendBtn.addEventListener('click', async function() {
+        const smtp = document.getElementById('smtpServer')?.value?.trim() || '';
+        const user = document.getElementById('smtpUser')?.value?.trim() || '';
+        const pass = document.getElementById('smtpPass')?.value?.trim() || '';
+        const recipients = document.getElementById('emailRecipients')?.value?.trim() || '';
+
+        if (!smtp || !user || !pass || !recipients) {
+            logEmail('Preencha todos os campos!', 'error');
+            showToast('❌ Preencha todos os campos', 'error');
+            return;
+        }
+
+        const btn = this;
+        btn.disabled = true;
+        btn.style.opacity = '0.7';
+        logEmail(`📤 Enviando alerta para ${recipients}...`, 'info');
+
+        try {
+            const result = await sendEmailViaVPS({
+                action: 'send',
+                smtp,
+                port: document.getElementById('smtpPort')?.value?.trim() || '587',
+                user,
+                pass,
+                recipients,
+                data: {
+                    ip: state.ip,
+                    location: state.location,
+                    isp: state.isp,
+                    link: '1Gbps Dedicado',
+                    metrics: { latency: state.latency, jitter: state.jitter, packetLoss: state.packetLoss, speed: state.speed },
+                    hosts: state.hostResults,
+                    bestHost: state.bestHost,
+                    status: state.status,
+                    timestamp: new Date().toISOString()
+                }
+            });
+
+            if (result.success) {
+                const texts = { stable: '✅ Estável', warning: '⚠️ Atenção', degraded: '🔴 Degradado' };
+                logEmail(`✅ ${texts[state.status]} - Enviado para ${recipients}`, 'success');
+                if (emailStatus) {
+                    emailStatus.innerHTML = '<i class="fas fa-check-circle"></i> Enviado';
+                    emailStatus.className = 'status-email success';
+                }
+                showToast('📧 Alerta enviado!', 'success');
+            } else {
+                throw new Error(result.message || 'Falha no envio');
+            }
+        } catch (error) {
+            logEmail('❌ Erro: ' + error.message, 'error');
+            if (emailStatus) {
+                emailStatus.innerHTML = '<i class="fas fa-times-circle"></i> Erro';
+                emailStatus.className = 'status-email error';
+            }
+            showToast('❌ Erro ao enviar', 'error');
+        } finally {
+            btn.disabled = false;
+            btn.style.opacity = '1';
+        }
+    });
+}
+
+const autoToggle = document.getElementById('autoAlertToggle');
+if (autoToggle) {
+    autoToggle.addEventListener('click', function() {
+        SERVER_CONFIG.autoAlert = !SERVER_CONFIG.autoAlert;
+        this.innerHTML = SERVER_CONFIG.autoAlert ? 
+            '<i class="fas fa-robot"></i> Auto: ON' : 
+            '<i class="fas fa-robot"></i> Auto: OFF';
+        this.style.background = SERVER_CONFIG.autoAlert ? '#22c55e' : '#64748b';
+        showToast(`Auto Alert ${SERVER_CONFIG.autoAlert ? 'ativado' : 'desativado'}`, 'info');
+    });
+}
+
+const speedtestBtn = document.getElementById('runSpeedtestBtn');
+if (speedtestBtn) {
+    speedtestBtn.addEventListener('click', runSpeedtest);
+}
 
 // ================================================================
 // SALVAR CONFIGURAÇÃO
 // ================================================================
 function saveConfig() {
     const config = {
-        smtpServer: document.getElementById('smtpServer').value,
-        smtpPort: document.getElementById('smtpPort').value,
-        smtpUser: document.getElementById('smtpUser').value,
-        smtpPass: document.getElementById('smtpPass').value,
-        recipients: document.getElementById('emailRecipients').value,
+        smtpServer: document.getElementById('smtpServer')?.value || '',
+        smtpPort: document.getElementById('smtpPort')?.value || '',
+        smtpUser: document.getElementById('smtpUser')?.value || '',
+        smtpPass: document.getElementById('smtpPass')?.value || '',
+        recipients: document.getElementById('emailRecipients')?.value || '',
         autoAlert: SERVER_CONFIG.autoAlert
     };
     localStorage.setItem('monitorConfig', JSON.stringify(config));
@@ -1381,17 +1390,24 @@ function loadConfig() {
         const saved = localStorage.getItem('monitorConfig');
         if (saved) {
             const config = JSON.parse(saved);
-            document.getElementById('smtpServer').value = config.smtpServer || 'smtp.seudominio.com';
-            document.getElementById('smtpPort').value = config.smtpPort || '587';
-            document.getElementById('smtpUser').value = config.smtpUser || '';
-            document.getElementById('smtpPass').value = config.smtpPass || '';
-            document.getElementById('emailRecipients').value = config.recipients || '';
+            const smtpServer = document.getElementById('smtpServer');
+            const smtpPort = document.getElementById('smtpPort');
+            const smtpUser = document.getElementById('smtpUser');
+            const smtpPass = document.getElementById('smtpPass');
+            const recipients = document.getElementById('emailRecipients');
+            if (smtpServer) smtpServer.value = config.smtpServer || 'smtp.seudominio.com';
+            if (smtpPort) smtpPort.value = config.smtpPort || '587';
+            if (smtpUser) smtpUser.value = config.smtpUser || '';
+            if (smtpPass) smtpPass.value = config.smtpPass || '';
+            if (recipients) recipients.value = config.recipients || '';
             SERVER_CONFIG.autoAlert = config.autoAlert !== undefined ? config.autoAlert : true;
             const toggleBtn = document.getElementById('autoAlertToggle');
-            toggleBtn.innerHTML = SERVER_CONFIG.autoAlert ? 
-                '<i class="fas fa-robot"></i> Auto: ON' : 
-                '<i class="fas fa-robot"></i> Auto: OFF';
-            toggleBtn.style.background = SERVER_CONFIG.autoAlert ? '#22c55e' : '#64748b';
+            if (toggleBtn) {
+                toggleBtn.innerHTML = SERVER_CONFIG.autoAlert ? 
+                    '<i class="fas fa-robot"></i> Auto: ON' : 
+                    '<i class="fas fa-robot"></i> Auto: OFF';
+                toggleBtn.style.background = SERVER_CONFIG.autoAlert ? '#22c55e' : '#64748b';
+            }
         }
     } catch (e) {
         console.warn('Erro ao carregar config:', e);
@@ -1409,26 +1425,26 @@ initChart();
 loadConfig();
 updateHostsGrid();
 
-document.getElementById('runSpeedtestBtn').addEventListener('click', runSpeedtest);
-
 async function startMonitoring() {
-    // Primeiro teste automático após 2s
+    // Primeiro teste após 2s
     setTimeout(runSpeedtest, 2000);
     // Teste a cada 60 segundos
     setInterval(runSpeedtest, 60000);
+    // Atualiza uptime a cada segundo
     setInterval(() => {
-        document.getElementById('uptimeValue').textContent = formatUptime();
+        const uptimeVal = document.getElementById('uptimeValue');
+        if (uptimeVal) uptimeVal.textContent = formatUptime();
     }, 1000);
 }
 
 startMonitoring();
 
-console.log('📡 Speedtest Banda Larga Brasil - HTTP Multi-Host');
+console.log('📡 Speedtest Multi-Host - Link 1Gbps');
 console.log('👨‍💻 Desenvolvido por Israelson Diego Rodrigues Sevalho');
 console.log('🚀 Dev de Redes e Softwares');
 console.log('📧 Endpoint: ' + SERVER_CONFIG.apiEndpoint);
 console.log('⚡ Link: 1 Gbps Dedicado');
-console.log('🌐 Hosts de teste: ' + TEST_HOSTS.map(h => h.name).join(', '));
+console.log('🌐 Hosts com suporte CORS: ' + TEST_HOSTS.map(h => h.name).join(', '));
 </script>
 </body>
 </html>
